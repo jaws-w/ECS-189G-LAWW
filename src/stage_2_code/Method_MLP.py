@@ -87,7 +87,7 @@ class Method_MLP(method, nn.Module):
     
     def test(self, X):
         # do the testing, and result the result
-        y_pred = self.forward(torch.FloatTensor(np.array(X)))
+        y_pred = self.forward(torch.FloatTensor(np.array(X)).to(self.device))
         # convert the probability distributions to the corresponding labels
         # instances will get the labels corresponding to the largest probability
         return y_pred.max(1)[1]
@@ -98,5 +98,5 @@ class Method_MLP(method, nn.Module):
         self.train(self.data['train']['X'], self.data['train']['y'])
         print('--start testing...')
         pred_y = self.test(self.data['test']['X'])
-        return {'pred_y': pred_y, 'true_y': self.data['test']['y']}
+        return {'pred_y': pred_y.cpu(), 'true_y': self.data['test']['y']}
             
