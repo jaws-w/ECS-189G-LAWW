@@ -1,4 +1,5 @@
 from src.base_class.setting import setting
+from sklearn.metrics import f1_score, precision_score, recall_score
 import numpy as np
 
 class Setting(setting):
@@ -17,6 +18,9 @@ class Setting(setting):
         # print(loaded_train_data)
 
         score_list = []
+        precision_list = []
+        recall_list = []
+        f1_list = []
 
         
 
@@ -34,4 +38,13 @@ class Setting(setting):
         self.evaluate.data = learned_result
         score_list.append(self.evaluate.evaluate())
 
-        return np.mean(score_list), np.std(score_list)
+        true_y = self.result.data['true_y']
+        pred_y = self.result.data['pred_y']
+        precision_list.append(precision_score(true_y, pred_y, average='weighted'))
+        recall_list.append(recall_score(true_y, pred_y, average='weighted'))
+        f1_list.append(f1_score(true_y, pred_y, average='weighted'))
+
+        return np.mean(score_list), np.std(score_list), \
+               np.mean(precision_list), np.std(precision_list), \
+               np.mean(recall_list), np.std(recall_list), \
+               np.mean(f1_list), np.std(f1_list)
