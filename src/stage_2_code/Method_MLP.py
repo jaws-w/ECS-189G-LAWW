@@ -9,6 +9,7 @@ from src.base_class.method import method
 from src.stage_1_code.Evaluate_Accuracy import Evaluate_Accuracy
 import torch
 from torch import device, nn
+from sklearn.metrics import f1_score, precision_score, recall_score
 import numpy as np
 
 
@@ -85,7 +86,10 @@ class Method_MLP(method, nn.Module):
 
             if epoch%100 == 0:
                 accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
-                print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item())
+                print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item(),
+                      'Precision:', precision_score(y_true, y_pred.max(1)[1], average='weighted'),
+                      'Recall:', recall_score(y_true, y_pred.max(1)[1], average='weighted'),
+                      'F1:', f1_score(y_true, y_pred.max(1)[1], average='weighted'))
     
     def test(self, X):
         # do the testing, and result the result
