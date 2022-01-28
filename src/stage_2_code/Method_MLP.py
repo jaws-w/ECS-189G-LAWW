@@ -16,7 +16,7 @@ import numpy as np
 class Method_MLP(method, nn.Module):
     data = None
     # it defines the max rounds to train the model
-    max_epoch = 50
+    max_epoch = 500
     # it defines the learning rate for gradient descent based optimizer for model learning
     learning_rate = 1e-3
 
@@ -87,9 +87,9 @@ class Method_MLP(method, nn.Module):
             if epoch%100 == 0:
                 accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
                 print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item(),
-                      'Precision:', precision_score(y_true, y_pred.max(1)[1], average='weighted'),
-                      'Recall:', recall_score(y_true, y_pred.max(1)[1], average='weighted'),
-                      'F1:', f1_score(y_true, y_pred.max(1)[1], average='weighted'))
+                      'Precision:', precision_score(y_true.cpu(), y_pred.cpu().max(1)[1], average='weighted'),
+                      'Recall:', recall_score(y_true.cpu(), y_pred.cpu().max(1)[1], average='weighted'),
+                      'F1:', f1_score(y_true.cpu(), y_pred.cpu().max(1)[1], average='weighted'))
     
     def test(self, X):
         # do the testing, and result the result
