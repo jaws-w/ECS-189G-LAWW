@@ -29,10 +29,10 @@ class Method_MLP(method, nn.Module):
         method.__init__(self, mName, mDescription)
         nn.Module.__init__(self)
         # check here for nn.Linear doc: https://pytorch.org/docs/stable/generated/torch.nn.Linear.html
-        self.fc_layer_1 = nn.Linear(784, 4).to(self.device)
+        self.fc_layer_1 = nn.Linear(784, 69).to(self.device)
         # check here for nn.ReLU doc: https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html
         self.activation_func_1 = nn.ReLU().to(self.device)
-        self.fc_layer_2 = nn.Linear(4, 10).to(self.device)
+        self.fc_layer_2 = nn.Linear(69, 10).to(self.device)
         # check here for nn.Softmax doc: https://pytorch.org/docs/stable/generated/torch.nn.Softmax.html
         self.activation_func_2 = nn.Softmax(dim=1).to(self.device)
 
@@ -57,7 +57,8 @@ class Method_MLP(method, nn.Module):
         # check here for the torch.optim doc: https://pytorch.org/docs/stable/optim.html
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         # check here for the nn.CrossEntropyLoss doc: https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
-        loss_function = nn.CrossEntropyLoss().to(self.device)
+        # loss_function = nn.CrossEntropyLoss().to(self.device)
+        loss_function = nn.NLLLoss().to(self.device)
         # loss_function = nn.L1Loss().to(self.device)
         # for training accuracy investigation purpose
         accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
