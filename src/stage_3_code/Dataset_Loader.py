@@ -45,7 +45,7 @@ class Dataset_Loader(dataset):
         super().__init__(dName, dDescription)
     
     def load(self):
-        batch_size = 60000
+        batch_size = 100
 
         print('loading data...')
         X_train = []
@@ -60,7 +60,7 @@ class Dataset_Loader(dataset):
             X_train.append(self.transform(pair['image']))
             y_train.append(pair['label'])
         for pair in data['test']:
-            X_test.append(pair['image'])
+            X_test.append(self.transform(pair['image']))
             y_test.append(pair['label'])
         print('training set size:', len(data['train']), 'testing set size:', len(data['test']))
 

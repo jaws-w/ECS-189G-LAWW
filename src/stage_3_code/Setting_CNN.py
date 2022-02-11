@@ -28,6 +28,6 @@ class Setting_CNN(setting):
             
         self.evaluate.data = learned_result
         
+        # return self.evaluate.evaluate(), None
         return self.evaluate.evaluate(), None
-
         

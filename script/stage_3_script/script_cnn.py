@@ -28,12 +28,13 @@ if 1:
     print('************ Start ************')
     setting_obj.prepare(data_obj, method_obj, result_obj, evaluate_obj)
     setting_obj.print_setup_summary()
-    mean_score, std_score, avg_precision, std_precision, avg_recall, std_recall, avg_f1, std_f1 = \
-        setting_obj.load_run_save_evaluate()
+    # mean_score, std_score, avg_precision, std_precision, avg_recall, std_recall, avg_f1, std_f1 = \
+        # setting_obj.load_run_save_evaluate()
+    accuracy = setting_obj.load_run_save_evaluate()
     print('************ Overall Performance ************')
-    print('MLP Accuracy: ' + str(mean_score) + ' +/- ' + str(std_score))
-    print('MLP Precision: ' + str(avg_precision) + ' +/- ' + str(std_precision))
-    print('MLP Recall: ' + str(avg_recall) + ' +/- ' + str(std_recall))
-    print('MLP F1: ' + str(avg_f1) + ' +/- ' + str(std_f1))
+    print('MLP Accuracy: ' + str(accuracy))
+    # print('MLP Precision: ' + str(avg_precision) + ' +/- ' + str(std_precision))
+    # print('MLP Recall: ' + str(avg_recall) + ' +/- ' + str(std_recall))
+    # print('MLP F1: ' + str(avg_f1) + ' +/- ' + str(std_f1))
     print('************ Finish ************')
     # ------------------------------------------------------

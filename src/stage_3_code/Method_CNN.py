@@ -9,10 +9,10 @@ import numpy as np
 class Method_CNN(method, nn.Module):
     data = None
 
-    max_epoch = 10
+    max_epoch = 2
     learning_rate = 1e-3
 
-    batch_size = 4
+    # batch_size = 4
 
     def __init__(self, mName, mDescription):
         method.__init__(self, mName, mDescription)
@@ -62,18 +62,24 @@ class Method_CNN(method, nn.Module):
                 #     accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
                 #     print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item())
 
-                if i % 2000 == 1999:    # print every 2000 mini-batches
+                if i % 1000 == 0:    # print every 2000 mini-batches
                     accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
                     print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item())
         print('Finished Training')
     
     def test(self, testdata):
-        dataiter = iter(testdata)
-        images, _ = dataiter.next()
-        outputs = self(images)
-        _, predicted = torch.max(outputs, 1)
+        for _, dataset in enumerate(testdata, 0):
+            images, y_true = dataset
+            outputs = self(images.double())
+            return (outputs.max(1)[1], y_true)
 
-        return predicted
+        # dataiter = iter(testdata)
+        # images, _ = dataiter.next()
+        # outputs = self(images)
+        # _, predicted = torch.max(outputs, 1)
+        #
+        # return predicted
+
         # y_pred = self(torch.FloatTensor(np.array(X)))
         # return y_pred.max(1)[1]
         
@@ -85,6 +91,7 @@ class Method_CNN(method, nn.Module):
         self.train(self.data['train'])
         print('--start testing...')
         # pred_y = self.test(self.data['test']['X'])
-        pred_y = self.test(self.data['test'])
+        pred_y, y_true = self.test(self.data['test'])
         # return {'pred_y': pred_y.cpu(), 'true_y': self.data['test']['y']}
-        return {'pred_y': pred_y.cpu(), 'true_y': self.data['test']}
+        # return {'pred_y': pred_y, 'true_y': self.data['test']}
+        return {'pred_y': pred_y, 'true_y': y_true}
