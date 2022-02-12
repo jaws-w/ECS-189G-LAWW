@@ -6,23 +6,42 @@ import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
 
+import pickle
+import matplotlib.pyplot as plt
+
 class Method_CNN(method, nn.Module):
     data = None
 
+    # MIST: n = 2, l_r = 1e-3
+    # ORL:
+    # CIFAR:
     max_epoch = 2
     learning_rate = 1e-3
-
-    # batch_size = 4
 
     def __init__(self, mName, mDescription):
         method.__init__(self, mName, mDescription)
         nn.Module.__init__(self)
+        # MNIST config
+        # self.conv1 = nn.Conv2d(1, 6, 5, dtype=torch.double)
+        # self.pool = nn.MaxPool2d(2, 2)
+        # self.conv2 = nn.Conv2d(6, 16, 5, dtype=torch.double)
+        # self.fc1 = nn.Linear(16*4*4, 120, dtype=torch.double)
+        # self.fc2 = nn.Linear(120, 84, dtype=torch.double)
+        # self.fc3 = nn.Linear(84, 10, dtype=torch.double)
+        # ORL
         self.conv1 = nn.Conv2d(1, 6, 5, dtype=torch.double)
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(6, 16, 5, dtype=torch.double)
         self.fc1 = nn.Linear(16*4*4, 120, dtype=torch.double)
         self.fc2 = nn.Linear(120, 84, dtype=torch.double)
         self.fc3 = nn.Linear(84, 10, dtype=torch.double)
+        # CIFAR
+        # self.conv1 = nn.Conv2d(1, 6, 5, dtype=torch.double)
+        # self.pool = nn.MaxPool2d(2, 2)
+        # self.conv2 = nn.Conv2d(6, 16, 5, dtype=torch.double)
+        # self.fc1 = nn.Linear(16*4*4, 120, dtype=torch.double)
+        # self.fc2 = nn.Linear(120, 84, dtype=torch.double)
+        # self.fc3 = nn.Linear(84, 10, dtype=torch.double)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
@@ -71,7 +90,13 @@ class Method_CNN(method, nn.Module):
         for _, dataset in enumerate(testdata, 0):
             images, y_true = dataset
             outputs = self(images.double())
-            return (outputs.max(1)[1], y_true)
+
+            # for i in range(5):
+            #     # plt.imshow(testdata.data['test'][i]['image'], cmap="Greys")
+            #     # plt.show()
+            #     print('pred: ', outputs.max(1)[1][i])
+            #     print('true: ', y_true[i])
+            return outputs.max(1)[1], y_true
 
         # dataiter = iter(testdata)
         # images, _ = dataiter.next()

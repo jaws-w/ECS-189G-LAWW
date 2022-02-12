@@ -11,12 +11,15 @@ import torchvision
 import torchvision.transforms as transforms
 import pickle
 from torch.utils.data import Dataset, DataLoader
+
+import matplotlib.pyplot as plt
 import math
 
 class CustomDataset(Dataset):
-    def __init__(self, img, labels):
+    def __init__(self, img, labels, data):
         self.labels = labels
         self.images = img
+        self.data = data
 
     def __len__(self):
             return len(self.labels)
@@ -37,14 +40,11 @@ class Dataset_Loader(dataset):
     )
 
     
-    def __init__(self, dName=None, dDescription=None):    # trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
-    # trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
-    #
-    # testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
-    # testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
+    def __init__(self, dName=None, dDescription=None):
         super().__init__(dName, dDescription)
     
     def load(self):
+        # MNIST: 100 ORL: __ CIFAR: __
         batch_size = 100
 
         print('loading data...')
@@ -62,14 +62,19 @@ class Dataset_Loader(dataset):
         for pair in data['test']:
             X_test.append(self.transform(pair['image']))
             y_test.append(pair['label'])
+            # plt.imshow(pair['image'], cmap='Greys')
+            # plt.show()
+            # print(pair['label'])
         print('training set size:', len(data['train']), 'testing set size:', len(data['test']))
 
-        trainset_data = CustomDataset(X_train, y_train)
-        testset_data = CustomDataset(X_test, y_test)
+        trainset_data = CustomDataset(X_train, y_train, data)
+        testset_data = CustomDataset(X_test, y_test, data)
         #return {'train': {'X': X_train, 'y': y_train}, 'test': {'X': X_test, 'y': y_test}}
         # return {'train': trainset_data, 'test': testset_data}
 
         trainloader = DataLoader(trainset_data, batch_size=batch_size, shuffle=True, num_workers=0)
         testloader = DataLoader(testset_data, batch_size=batch_size, shuffle=False, num_workers=0)
+        trainloader.data = data
+        testloader.data = data
 
         return {'train': trainloader, 'test': testloader}

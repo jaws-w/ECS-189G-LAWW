@@ -9,15 +9,25 @@ CIFAR_classes = ('plane', 'car', 'bird', 'cat',
 
 if 1:
 
-    data_obj = Dataset_Loader('MNIST', '')
+    # data_obj = Dataset_Loader('MNIST', '')
+    # data_obj.dataset_source_folder_path = '../../data/stage_3_data/'
+    # data_obj.dataset_source_file_name = 'MNIST'
+
+    data_obj = Dataset_Loader('ORL', '')
     data_obj.dataset_source_folder_path = '../../data/stage_3_data/'
-    data_obj.dataset_source_file_name = 'MNIST'
+    data_obj.dataset_source_file_name = 'ORL'
+
+    # data_obj = Dataset_Loader('CIFAR', '')
+    # data_obj.dataset_source_folder_path = '../../data/stage_3_data/'
+    # data_obj.dataset_source_file_name = 'CIFAR'
 
     method_obj = Method_CNN('CNN', '')
 
     result_obj = Result_Saver('saver', '')
     result_obj.result_destination_folder_path = '../../result/stage_3_result/CNN_'
-    result_obj.result_destination_file_name = 'prediction_result'
+    # result_obj.result_destination_file_name = 'prediction_result'
+    result_obj.result_destination_file_name = 'prediction_result_ORL'
+    # result_obj.result_destination_file_name = 'prediction_result_CIFAR'
 
     setting_obj = Setting_CNN('CNN Setting', '')
 
