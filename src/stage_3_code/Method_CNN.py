@@ -12,32 +12,17 @@ import matplotlib.pyplot as plt
 class Method_CNN(method, nn.Module):
     data = None
 
-    # MIST: n = 2, l_r = 1e-3
-    # ORL: n  = 30, l_r = 1e-3
-    # CIFAR:
-    max_epoch = 500
+    # MNIST: n = 2, l_r = 1e-3
+    # ORL: n = 10, l_r = 1e-3
+    # CIFAR: n = 10, l_r = 1e-3
+    max_epoch = 2
     learning_rate = 1e-3
 
     def __init__(self, mName, mDescription):
         method.__init__(self, mName, mDescription)
         nn.Module.__init__(self)
-        # MNIST config
-        # self.conv1 = nn.Conv2d(1, 6, 5, dtype=torch.double)
-        # self.pool = nn.MaxPool2d(2, 2)
-        # self.conv2 = nn.Conv2d(6, 16, 5, dtype=torch.double)
-        # self.fc1 = nn.Linear(16*4*4, 120, dtype=torch.double)
-        # self.fc2 = nn.Linear(120, 84, dtype=torch.double)
-        # self.fc3 = nn.Linear(84, 10, dtype=torch.double)
-        # ORL
-        # self.conv1 = nn.Conv2d(3, 18, 5, dtype=torch.double)
-        # self.pool = nn.MaxPool2d(2, 2)
-        # self.conv2 = nn.Conv2d(18, 36, 5, dtype=torch.double)
-        # self.conv3 = nn.Conv2d(36, 46, 5, dtype=torch.double)
-        # self.fc1 = nn.Linear(3680, 1840, dtype=torch.double)
-        # self.fc2 = nn.Linear(1840, 460, dtype=torch.double)
-        # self.fc3 = nn.Linear(460, 41, dtype=torch.double)
-        # CIFAR
-        self.conv1 = nn.Conv2d(3, 6, 5, dtype=torch.double)
+        # MNIST config (0.99)
+        self.conv1 = nn.Conv2d(1, 6, 5, dtype=torch.double)
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(6, 12, 3, dtype=torch.double)
         self.conv3 = nn.Conv2d(12, 46, 5, dtype=torch.double)
@@ -45,6 +30,20 @@ class Method_CNN(method, nn.Module):
         self.fc1 = nn.Linear(46, 120, dtype=torch.double)
         self.fc2 = nn.Linear(120, 84, dtype=torch.double)
         self.fc3 = nn.Linear(84, 10, dtype=torch.double)
+        # ORL (0.925 w/ batches of 45)
+        # self.conv1 = nn.Conv2d(3, 6, 5, dtype=torch.double)
+        # self.pool = nn.MaxPool2d(2, 2)
+        # self.conv2 = nn.Conv2d(6, 16, 5, dtype=torch.double)
+        # self.fc1 = nn.Linear(16*500, 120, dtype=torch.double)
+        # self.fc2 = nn.Linear(120, 84, dtype=torch.double)
+        # self.fc3 = nn.Linear(84, 41, dtype=torch.double)
+        # CIFAR (0.73)
+        # self.conv1 = nn.Conv2d(3, 64, 5, dtype=torch.double)
+        # self.pool = nn.MaxPool2d(2, 2)
+        # self.conv2 = nn.Conv2d(64, 128, 5, dtype=torch.double)
+        # self.fc1 = nn.Linear(128*5*5, 120, dtype=torch.double)
+        # self.fc2 = nn.Linear(120, 84, dtype=torch.double)
+        # self.fc3 = nn.Linear(84, 10, dtype=torch.double)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
@@ -64,6 +63,7 @@ class Method_CNN(method, nn.Module):
         accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
 
         for epoch in range(self.max_epoch):
+            y_pred, y_true, train_loss = 0, 0, 0
             for i, dataset in enumerate(traindata, 0):
                 # tensor = tensor.unsqueeze(1)  # unsqueeze(0) for rgb
                 inputs, labels = dataset
@@ -80,13 +80,13 @@ class Method_CNN(method, nn.Module):
                 train_loss.backward()
                 optimizer.step()
 
-                # if epoch%100 == 0:
-                #     accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
-                #     print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item())
-
-                if i % 1000 == 0:    # print every 2000 mini-batches
+                if i%10 == 0:
                     accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
-                    print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item())
+                    print('Epoch:', epoch, 'i:',i, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item())
+
+            if epoch % 10 == 0:    # print every z mini-batches
+                accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
+                print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item())
         print('Finished Training')
     
     def test(self, testdata):
