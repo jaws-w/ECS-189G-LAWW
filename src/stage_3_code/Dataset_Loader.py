@@ -44,7 +44,7 @@ class Dataset_Loader(dataset):
         super().__init__(dName, dDescription)
     
     def load(self):
-        # MNIST: 100 ORL: __ CIFAR: __
+        # MNIST: 100 ORL: 45 CIFAR: 100
         batch_size = 100
 
         print('loading data...')

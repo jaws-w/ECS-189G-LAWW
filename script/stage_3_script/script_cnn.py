@@ -9,13 +9,13 @@ CIFAR_classes = ('plane', 'car', 'bird', 'cat',
 
 if 1:
 
-    # data_obj = Dataset_Loader('MNIST', '')
-    # data_obj.dataset_source_folder_path = '../../data/stage_3_data/'
-    # data_obj.dataset_source_file_name = 'MNIST'
-
-    data_obj = Dataset_Loader('ORL', '')
+    data_obj = Dataset_Loader('MNIST', '')
     data_obj.dataset_source_folder_path = '../../data/stage_3_data/'
-    data_obj.dataset_source_file_name = 'ORL'
+    data_obj.dataset_source_file_name = 'MNIST'
+
+    # data_obj = Dataset_Loader('ORL', '')
+    # data_obj.dataset_source_folder_path = '../../data/stage_3_data/'
+    # data_obj.dataset_source_file_name = 'ORL'
 
     # data_obj = Dataset_Loader('CIFAR', '')
     # data_obj.dataset_source_folder_path = '../../data/stage_3_data/'
