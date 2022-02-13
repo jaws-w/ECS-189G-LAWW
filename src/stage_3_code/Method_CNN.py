@@ -13,9 +13,9 @@ class Method_CNN(method, nn.Module):
     data = None
 
     # MIST: n = 2, l_r = 1e-3
-    # ORL:
+    # ORL: n  = 30, l_r = 1e-3
     # CIFAR:
-    max_epoch = 2
+    max_epoch = 500
     learning_rate = 1e-3
 
     def __init__(self, mName, mDescription):
@@ -29,25 +29,27 @@ class Method_CNN(method, nn.Module):
         # self.fc2 = nn.Linear(120, 84, dtype=torch.double)
         # self.fc3 = nn.Linear(84, 10, dtype=torch.double)
         # ORL
-        self.conv1 = nn.Conv2d(1, 6, 5, dtype=torch.double)
+        # self.conv1 = nn.Conv2d(3, 18, 5, dtype=torch.double)
+        # self.pool = nn.MaxPool2d(2, 2)
+        # self.conv2 = nn.Conv2d(18, 36, 5, dtype=torch.double)
+        # self.conv3 = nn.Conv2d(36, 46, 5, dtype=torch.double)
+        # self.fc1 = nn.Linear(3680, 1840, dtype=torch.double)
+        # self.fc2 = nn.Linear(1840, 460, dtype=torch.double)
+        # self.fc3 = nn.Linear(460, 41, dtype=torch.double)
+        # CIFAR
+        self.conv1 = nn.Conv2d(3, 6, 5, dtype=torch.double)
         self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(6, 16, 5, dtype=torch.double)
-        self.fc1 = nn.Linear(16*4*4, 120, dtype=torch.double)
+        self.conv2 = nn.Conv2d(6, 12, 3, dtype=torch.double)
+        self.conv3 = nn.Conv2d(12, 46, 5, dtype=torch.double)
+
+        self.fc1 = nn.Linear(46, 120, dtype=torch.double)
         self.fc2 = nn.Linear(120, 84, dtype=torch.double)
         self.fc3 = nn.Linear(84, 10, dtype=torch.double)
-        # CIFAR
-        # self.conv1 = nn.Conv2d(1, 6, 5, dtype=torch.double)
-        # self.pool = nn.MaxPool2d(2, 2)
-        # self.conv2 = nn.Conv2d(6, 16, 5, dtype=torch.double)
-        # self.fc1 = nn.Linear(16*4*4, 120, dtype=torch.double)
-        # self.fc2 = nn.Linear(120, 84, dtype=torch.double)
-        # self.fc3 = nn.Linear(84, 10, dtype=torch.double)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
-        # x = self.pool(self.conv1(x))
-        # x = self.pool(self.conv2(x))
+        x = self.pool(F.relu(self.conv3(x)))
         x = torch.flatten(x, 1)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
@@ -56,7 +58,8 @@ class Method_CNN(method, nn.Module):
 
     # def train(self, X, y):
     def train(self, traindata):
-        optimizer = optim.SGD(self.parameters(), lr=self.learning_rate, momentum=0.9)
+        # optimizer = optim.SGD(self.parameters(), lr=self.learning_rate, momentum=0.9)
+        optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
         loss_function = nn.CrossEntropyLoss()
         accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
 

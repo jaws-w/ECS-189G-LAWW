@@ -13,13 +13,13 @@ if 1:
     # data_obj.dataset_source_folder_path = '../../data/stage_3_data/'
     # data_obj.dataset_source_file_name = 'MNIST'
 
-    data_obj = Dataset_Loader('ORL', '')
-    data_obj.dataset_source_folder_path = '../../data/stage_3_data/'
-    data_obj.dataset_source_file_name = 'ORL'
-
-    # data_obj = Dataset_Loader('CIFAR', '')
+    # data_obj = Dataset_Loader('ORL', '')
     # data_obj.dataset_source_folder_path = '../../data/stage_3_data/'
-    # data_obj.dataset_source_file_name = 'CIFAR'
+    # data_obj.dataset_source_file_name = 'ORL'
+
+    data_obj = Dataset_Loader('CIFAR', '')
+    data_obj.dataset_source_folder_path = '../../data/stage_3_data/'
+    data_obj.dataset_source_file_name = 'CIFAR'
 
     method_obj = Method_CNN('CNN', '')
 
@@ -42,7 +42,7 @@ if 1:
         # setting_obj.load_run_save_evaluate()
     accuracy = setting_obj.load_run_save_evaluate()
     print('************ Overall Performance ************')
-    print('MLP Accuracy: ' + str(accuracy))
+    print('CNN Accuracy: ' + str(accuracy))
     # print('MLP Precision: ' + str(avg_precision) + ' +/- ' + str(std_precision))
     # print('MLP Recall: ' + str(avg_recall) + ' +/- ' + str(std_recall))
     # print('MLP F1: ' + str(avg_f1) + ' +/- ' + str(std_f1))
