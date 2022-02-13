@@ -6,7 +6,6 @@ Concrete SettingModule class for a specific experimental SettingModule
 # License: TBD
 
 from src.base_class.setting import setting
-from sklearn.model_selection import train_test_split
 import numpy as np
 
 class Setting_CNN(setting):
@@ -27,7 +26,11 @@ class Setting_CNN(setting):
         self.result.save()
             
         self.evaluate.data = learned_result
+
+        true_y = self.result.data['true_y']
+        pred_y = self.result.data['pred_y']
         
         # return self.evaluate.evaluate(), None
-        return self.evaluate.evaluate(), None
+        return self.evaluate.evaluate()
+
         
