@@ -5,12 +5,13 @@ Concrete IO class for a specific dataset
 # License: TBD
 
 from src.base_class.dataset import dataset
+from src.base_class.preprocess_helpers import ConstructVocab, set_tensor_padding
 import torch
 from torch.utils.data import Dataset
 from torchtext.vocab import Vocab, build_vocab_from_iterator
 import pandas as pd
 
-MAX_WORDS  = 200
+MAX_WORDS = 200
 
 class Classification_Dataset(Dataset):
 
@@ -43,6 +44,14 @@ class Dataset_Loader(dataset):
         if self.dataset_name == 'CLASSIFICATION':
             train_data = Classification_Dataset(self.dataset_source_folder_path + '/train.csv')
             test_data = Classification_Dataset(self.dataset_source_folder_path + '/test.csv')
+
+            inputs = ConstructVocab(train_data.data['review'].values.tolist())
+            input_tensor = [[inputs.word_to_idx[word] for word in review] for review in train_data.data['review']]
+
+            # add padding
+            max_len_input = max(len(i) for i in input_tensor)
+            input_tensor = set_tensor_padding(input_tensor, max_len_input)
+            print(input_tensor)
 
 
             # train_neg_txt = self.clean_classification_text('/train/neg/')
