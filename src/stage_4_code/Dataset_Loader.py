@@ -4,14 +4,27 @@ Concrete IO class for a specific dataset
 # Copyright (c) 2017-Current Jiawei Zhang <jiawei@ifmlab.org>
 # License: TBD
 
-from copyreg import clear_extension_cache
 from src.base_class.dataset import dataset
-
-import os
-import string
-import random
+import torch
+from torch.utils.data import Dataset
+from torchtext.vocab import Vocab, build_vocab_from_iterator
+import pandas as pd
 
 MAX_WORDS  = 200
+
+class Classification_Dataset(Dataset):
+
+    def __init__(self, file_name, transform=None, target_transform=None) -> None:
+        super().__init__()
+        self.data = pd.read_csv(file_name)
+        self.transform = transform
+        self.target_transform = target_transform
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, index):
+        return self.data['review'][index], self.data['rating'][index]
 
 class Dataset_Loader(dataset):
     data = None
@@ -28,52 +41,24 @@ class Dataset_Loader(dataset):
         print('loading data...')
         
         if self.dataset_name == 'CLASSIFICATION':
+            train_data = Classification_Dataset(self.dataset_source_folder_path + '/train.csv')
+            test_data = Classification_Dataset(self.dataset_source_folder_path + '/test.csv')
 
-            train_neg_txt = self.clean_classification_text('/train/neg/')
-            train_pos_txt = self.clean_classification_text('/train/pos/')
-            test_neg_txt = self.clean_classification_text('/test/neg/')
-            test_pos_txt = self.clean_classification_text('/test/pos/')
+
+            # train_neg_txt = self.clean_classification_text('/train/neg/')
+            # train_pos_txt = self.clean_classification_text('/train/pos/')
+            # test_neg_txt = self.clean_classification_text('/test/neg/')
+            # test_pos_txt = self.clean_classification_text('/test/pos/')
             
-            print(len(self.vocab))
+            # print(len(self.vocab))
 
-            train_txt = train_neg_txt + train_pos_txt
-            test_txt = test_neg_txt + test_pos_txt
+            # train_txt = train_neg_txt + train_pos_txt
+            # test_txt = test_neg_txt + test_pos_txt
 
-            random.shuffle(train_txt)
-            random.shuffle(test_txt)
-            return {'train': train_txt, 'test': test_txt}
-
+            # random.shuffle(train_txt)
+            # random.shuffle(test_txt)
+            # return {'train': train_txt, 'test': test_txt}
+            pass
         elif self.dataset_name == 'GENERATION':
             pass
 
-    # @returns [ {words: [words], score: int}, ... ]
-    def clean_classification_text(self, reviews_dir_path):
-        print("Reading", reviews_dir_path)
-        table = str.maketrans('', '', string.punctuation)
-        cleaned_text_objs = []
-
-        for file in os.listdir(self.dataset_source_folder_path + reviews_dir_path):
-            # print(file)
-            
-            score = int(file[-5:-4])
-
-            f = open(self.dataset_source_folder_path + reviews_dir_path + file, 'r', encoding='UTF-8')
-            try:
-                txt = f.read()
-            except UnicodeDecodeError:
-                # print(file)
-                pass
-
-            f.close()
-
-            words = txt.split()
-            stripped = [w.translate(table).lower() for w in words[:MAX_WORDS]]
-
-            # Get length of longest review for encoding.
-            if len(stripped) > self.max_length:
-                self.max_length = len(stripped)
-            # print(stripped)
-            cleaned_text_objs.append((stripped, score))
-            self.vocab = self.vocab.union(set(stripped))
-
-        return cleaned_text_objs
