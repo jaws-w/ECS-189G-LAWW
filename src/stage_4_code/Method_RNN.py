@@ -9,45 +9,58 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 
+
 # We used the readings and tutorial at: https://blog.floydhub.com/gru-with-pytorch/ to learn more about GRU implementation.
 class Method_RNN(method, nn.Module):
 
     data = None
+    batch_size = None
+    vocab_input_size = None
+    out_size = None
+    input_dim = 256
+
+    embedding = None
+    fc = None
 
     # CLASSIFICATION: n = 2, l_r = 1e-3
     # GENERATION: n = 10, l_r = 1e-3
     max_epoch = 10
     learning_rate = 1e-2
 
-    def __init__(self, mName, mDescription, DATASET, mData):
+    def __init__(self, mName, mDescription, DATASET):
         method.__init__(self, mName, mDescription)
         nn.Module.__init__(self)
-
-        self.data = mData
 
         if DATASET == 0:
             # CLASSIFICATION config
             self.max_epoch = 10
 
-            hidden_dim = 16
+            self.hidden_dim = 16
             n_layers = 2
+            dropout = 0.2
 
-            self.rnn = nn.GRU(self.data.max_length, hidden_dim, n_layers)
+            # self.dropout = nn.Dropout(p=0.5)
+            self.rnn = nn.GRU(self.input_dim, self.hidden_dim, n_layers, batch_first=True, dropout=dropout)
             self.relu = nn.ReLU()
-            self.fc = nn.Linear(hidden_dim, output_dim, dtype=torch.double)
+            # self.fc = nn.Linear(hidden_dim, self.out_size, dtype=torch.double)
         elif DATASET == 1:
             # GENERATION config
             # TODO: implement configuration for generation dataset
             pass
 
-    def forward(self, x, hidden):
-        out, hidden = self.rnn(x, hidden)
-        out = self.fc(self.relu(out[:,-1]))
-        return x
+    def forward(self, x, h):
+        x = self.embedding(x)
+        # self.hidden = self.init_hidden()
+        out, h = self.rnn(x, h)
+        # out = out[-1, :, :]
+        # out = self.dropout(out)
+        out = self.fc(self.relu(out[:, -1]))
 
-    def init_hidden(self, batch_size):
+        return out, h
+
+    def init_hidden(self):
         weight = next(self.parameters()).data
-        hidden = weight.new(self.n_layers, batch_size, self.hidden_dim).zero_()
+        hidden = weight.new(self.n_layers, self.batch_size, self.hidden_dim).zero_()
         return hidden
 
     # def train(self, X, y):
@@ -101,6 +114,9 @@ class Method_RNN(method, nn.Module):
     def run(self):
         print('method running...')
         print('--start training...')
+        self.embedding = nn.Embedding(self.vocab_input_size, self.input_dim)
+        self.fc = nn.Linear(self.hidden_dim, self.out_size, dtype=torch.double)
+
         self.train(self.data['train'])
         print('--start testing...')
         pred_y, y_true = self.test(self.data['test'])

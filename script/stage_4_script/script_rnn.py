@@ -17,10 +17,17 @@ if 1:
         data_obj.dataset_source_folder_path = '../../data/stage_4_data/text_generation'
         data_obj.dataset_source_file_name = 'ORL'
 
-    data_obj.load()
-    print(data_obj.max_length)
-    # method_obj = Method_RNN('RNN', '', DATASET, data_obj)
-    
+    # init objects to run the RNN model.
+    method_obj = Method_RNN('RNN', '', DATASET)
+    setting_obj = Setting_RNN('RNN Setting', '')
+    evaluate_obj = Evaluate_Accuracy('accuracy', '')
+    result_obj = Result_Saver('saver', '')
+
+    # print(data_obj.max_length)
+
+    setting_obj.prepare(data_obj, method_obj, result_obj, evaluate_obj)
+    setting_obj.print_setup_summary()
+    setting_obj.load_run_save_evaluate()
 
     # result_obj = Result_Saver('saver', '')
     # result_obj.result_destination_folder_path = '../../result/stage_3_result/CNN_'

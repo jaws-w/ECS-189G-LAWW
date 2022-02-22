@@ -11,26 +11,21 @@ class Setting_RNN(setting):
         self.dataset_train = dataset_train
 
     def load_run_save_evaluate(self):
-        loaded_train_data = self.dataset_train.load()
-
-        loaded_test_data = self.dataset_test.load()
-        # print(loaded_test_data)
-        # print(loaded_train_data)
-
         score_list = []
         precision_list = []
         recall_list = []
         f1_list = []
 
-        
+        # load data
+        self.method.data = self.dataset.load()
+        self.method.batch_size = self.dataset.batch_size
+        self.method.vocab_input_size = self.dataset.vocab_size
+        self.method.out_size = self.dataset.label_size
 
-
-        # run MethodModule
-        # self.method.data = {'train': {'X': loaded_data['X'], 'y': loaded_data['y']}, 'test': {'X': X_test, 'y': y_test}}
-        self.method.data = {'train': {'X': loaded_train_data['X'], 'y': loaded_train_data['y']}, 'test': {'X': loaded_test_data['X'], 'y': loaded_test_data['y']}}
+        # run module
         learned_result = self.method.run()
         
-        # save raw ResultModule
+        # save result
         self.result.data = learned_result
         #self.result.fold_count = fold_count
         self.result.save()
