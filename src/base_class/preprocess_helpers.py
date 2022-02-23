@@ -51,3 +51,5 @@ def do_padding(lst, max_len):
 # Sets padding to all elements in given tensor.
 def set_tensor_padding(tensor, max_len):
     return np.array([do_padding(x, max_len) for x in tensor])
+
+

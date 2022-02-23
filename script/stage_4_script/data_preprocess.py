@@ -5,6 +5,7 @@ Preprocesses the data for stage 4
 import os
 import string
 import csv
+import re
 # import random
         
 # @returns [ {score: int, words: [words]}, ... ]
@@ -35,6 +36,23 @@ def clean_classification_text(reviews_dir_path):
 
     return cleaned_text_objs
 
+def clean_generation_text(file_path):
+    print("Reading", file_path)
+
+    table = str.maketrans('', '', string.punctuation)
+
+    cleaned_jokes = None
+
+    with open(file_path, 'r', encoding='UTF-8') as f:
+        jokes = f.readlines()[1:]
+        jokes = [joke[re.search(r',', joke).start() + 2:-2] for joke in jokes]
+        jokes = [' '.join([w.translate(table).lower() for w in joke.split()]) for joke in jokes]
+
+    cleaned_jokes = [(i, jokes[i]) for i in range(len(jokes))]
+
+    return cleaned_jokes
+
+
 if 1:
     # CLASSIFICATION: 0, GENERATION: 1
     DATASET = 0
@@ -60,6 +78,7 @@ if 1:
         fields = ['rating', 'review']
 
         # write to train.csv and test.csv
+        print("Writing")
         with open(dataset_source_folder_path + '/train.csv', 'w', newline='', encoding='UTF-8') as train_csv:
             train_writer = csv.writer(train_csv)
             train_writer.writerow(fields)
@@ -74,8 +93,16 @@ if 1:
 
 
     elif DATASET == 1:
-        pass
-        # data_obj = Dataset_Loader('GENERATION', '')
-        # data_obj.dataset_source_folder_path = '../../data/stage_4_data/text_generation'
-        # data_obj.dataset_source_file_name = 'ORL'
+        dataset_source_folder_path = '../../data/stage_4_data/text_generation/'
+        dataset_source_file_name = 'data'
 
+        print('loading data...')
+
+        train_txt = clean_generation_text(dataset_source_folder_path + dataset_source_file_name)
+
+        print('writing...')
+
+        with open(dataset_source_folder_path + 'cleaned.csv', 'w', newline='', encoding='UTF-8') as f:
+            train_writer = csv.writer(f)
+            train_writer.writerow(['id', 'joke'])
+            train_writer.writerows(train_txt)

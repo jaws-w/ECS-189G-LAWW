@@ -14,8 +14,8 @@ if 1:
         # data_obj.dataset_source_file_name = ''
     elif DATASET == 1:
         data_obj = Dataset_Loader('GENERATION', '')
-        data_obj.dataset_source_folder_path = '../../data/stage_4_data/text_generation'
-        data_obj.dataset_source_file_name = 'ORL'
+        data_obj.dataset_source_folder_path = '../../data/stage_4_data/text_generation/'
+        data_obj.dataset_source_file_name = 'data'
 
     # init objects to run the RNN model.
     method_obj = Method_RNN('RNN', '', DATASET)
