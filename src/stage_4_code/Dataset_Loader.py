@@ -61,6 +61,8 @@ class Dataset_Loader(dataset):
 
     def __init__(self, dName=None, dDescription=None, batch_size=1):
         super().__init__(dName, dDescription)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
         self.batch_size = batch_size
     
     def load(self):
@@ -83,17 +85,17 @@ class Dataset_Loader(dataset):
 
             # Add padding.
             max_len_train_input = max(len(i) for i in train_tensor)
-            train_tensor = torch.FloatTensor(set_tensor_padding(train_tensor, max_len_train_input))
+            train_tensor = torch.LongTensor(set_tensor_padding(train_tensor, max_len_train_input)).to(self.device)
 
             max_len_test_input = max(len(i) for i in test_tensor)
-            test_tensor = torch.FloatTensor(set_tensor_padding(test_tensor, max_len_test_input))
+            test_tensor = torch.LongTensor(set_tensor_padding(test_tensor, max_len_test_input)).to(self.device)
 
             # Convert the processed data into DataLoader class so that Method_RNN can use it easily.
-            train_dataset = Model_Dataset(train_tensor, train_data.data['rating'].subtract(1))
-            test_dataset = Model_Dataset(test_tensor, test_data.data['rating'].subtract(1))
+            train_dataset = Model_Dataset(train_tensor, torch.LongTensor(train_data.data['rating']).to(self.device))
+            test_dataset = Model_Dataset(test_tensor, torch.LongTensor(test_data.data['rating']).to(self.device))
 
             train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
-            test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=True)
+            test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
 
 
             # print(train_inputs.idx_to_word[20])

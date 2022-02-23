@@ -9,14 +9,14 @@ import re
 # import random
         
 # @returns [ {score: int, words: [words]}, ... ]
-def clean_classification_text(reviews_dir_path):
+def clean_classification_text(reviews_dir_path, pos):
     print("Reading", reviews_dir_path)
     table = str.maketrans('', '', string.punctuation)
     cleaned_text_objs = []
 
     for file in os.listdir(dataset_source_folder_path + reviews_dir_path):
         # print(file)
-        score = int(file[-6:-4].replace('_',''))
+        # score = int(file[-6:-4].replace('_',''))
 
         with open(dataset_source_folder_path + reviews_dir_path + file, 'r', encoding='UTF-8') as f:
             try:
@@ -32,7 +32,7 @@ def clean_classification_text(reviews_dir_path):
         # if len(stripped) > self.max_length:
         #     self.max_length = len(stripped)
         # print(stripped)
-        cleaned_text_objs.append((score, stripped))
+        cleaned_text_objs.append((1 if pos else 0, stripped))
 
     return cleaned_text_objs
 
@@ -61,16 +61,16 @@ if 1:
     vocab = set()
 
     if DATASET == 0:
-        dataset_source_folder_path = '../../data/stage_4_data/text_classification'
+        dataset_source_folder_path = '../../data/stage_4_data/text_classification/'
         # data_obj.dataset_source_file_name = ''
 
         print('loading data...')
         
         # read the reviews from files and clean them
-        train_neg_txt = clean_classification_text('/train/neg/')
-        train_pos_txt = clean_classification_text('/train/pos/')
-        test_neg_txt = clean_classification_text('/test/neg/')
-        test_pos_txt = clean_classification_text('/test/pos/')
+        train_neg_txt = clean_classification_text('train/neg/', False)
+        train_pos_txt = clean_classification_text('train/pos/', True)
+        test_neg_txt = clean_classification_text('test/neg/', False)
+        test_pos_txt = clean_classification_text('test/pos/', True)
 
         train_txt = train_neg_txt + train_pos_txt
         test_txt = test_neg_txt + test_pos_txt

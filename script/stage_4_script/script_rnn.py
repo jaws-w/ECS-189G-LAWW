@@ -25,9 +25,9 @@ if 1:
 
     # print(data_obj.max_length)
 
-    setting_obj.prepare(data_obj, method_obj, result_obj, evaluate_obj)
-    setting_obj.print_setup_summary()
-    setting_obj.load_run_save_evaluate()
+    # setting_obj.prepare(data_obj, method_obj, result_obj, evaluate_obj)
+    # setting_obj.print_setup_summary()
+    # setting_obj.load_run_save_evaluate()
 
     # result_obj = Result_Saver('saver', '')
     # result_obj.result_destination_folder_path = '../../result/stage_3_result/CNN_'
@@ -41,16 +41,16 @@ if 1:
 
 
     # # ---- running section ---------------------------------
-    # print('************ Start ************')
-    # setting_obj.prepare(data_obj, method_obj, result_obj, evaluate_obj)
-    # setting_obj.print_setup_summary()
-    # accuracy, mean_score, std_score, avg_precision, std_precision, avg_recall, std_recall, avg_f1, std_f1 = \
-    #     setting_obj.load_run_save_evaluate()
-    # # accuracy = setting_obj.load_run_save_evaluate()
-    # print('************ Overall Performance ************')
-    # print('CNN Accuracy: ' + str(accuracy))
-    # print('CNN Precision: ' + str(avg_precision) + ' +/- ' + str(std_precision))
-    # print('CNN Recall: ' + str(avg_recall) + ' +/- ' + str(std_recall))
-    # print('CNN F1: ' + str(avg_f1) + ' +/- ' + str(std_f1))
-    # print('************ Finish ************')
+    print('************ Start ************')
+    setting_obj.prepare(data_obj, method_obj, result_obj, evaluate_obj)
+    setting_obj.print_setup_summary()
+    accuracy, mean_score, std_score, avg_precision, std_precision, avg_recall, std_recall, avg_f1, std_f1 = \
+        setting_obj.load_run_save_evaluate()
+    # accuracy = setting_obj.load_run_save_evaluate()
+    print('************ Overall Performance ************')
+    print('CNN Accuracy: ' + str(accuracy))
+    print('CNN Precision: ' + str(avg_precision) + ' +/- ' + str(std_precision))
+    print('CNN Recall: ' + str(avg_recall) + ' +/- ' + str(std_recall))
+    print('CNN F1: ' + str(avg_f1) + ' +/- ' + str(std_f1))
+    print('************ Finish ************')
     # # ------------------------------------------------------
