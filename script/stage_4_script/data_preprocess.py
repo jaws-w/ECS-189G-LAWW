@@ -26,7 +26,7 @@ def clean_classification_text(reviews_dir_path):
 
         words = txt.split(maxsplit=MAX_WORDS)
         stripped = [w.translate(table).lower() for w in words[:MAX_WORDS]]
-        # stripped = ' '.join(words[:MAX_WORDS])
+        stripped = ' '.join(stripped[:MAX_WORDS])
         # # Get length of longest review for encoding.
         # if len(stripped) > self.max_length:
         #     self.max_length = len(stripped)

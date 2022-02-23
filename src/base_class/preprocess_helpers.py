@@ -14,8 +14,12 @@ class ConstructVocab:
         self.create_index()
 
     def create_index(self):
+        # for entry in self.text_entries:
+        #     self.vocab.update(entry)
         for entry in self.text_entries:
-            self.vocab.update(entry)
+            # print(entry)
+            self.vocab.update(entry.split())
+            pass
 
         # sort vocabulary
         self.vocab = sorted(self.vocab)
@@ -46,4 +50,4 @@ def do_padding(lst, max_len):
 
 # Sets padding to all elements in given tensor.
 def set_tensor_padding(tensor, max_len):
-    return [do_padding(x, max_len) for x in tensor]
+    return np.array([do_padding(x, max_len) for x in tensor])

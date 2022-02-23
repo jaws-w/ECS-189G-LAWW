@@ -4,6 +4,7 @@ Concrete IO class for a specific dataset
 # Copyright (c) 2017-Current Jiawei Zhang <jiawei@ifmlab.org>
 # License: TBD
 
+from cProfile import label
 from src.base_class.dataset import dataset
 from src.base_class.preprocess_helpers import ConstructVocab, set_tensor_padding
 
@@ -37,14 +38,14 @@ class Model_Dataset(Dataset):
     def __init__(self, inputs, labels):
         self.data = inputs
         self.target = labels
-        self.length = [np.sum(1 - np.equal(x, 0)) for x in inputs]
+        # self.length = [np.sum(1 - np.equal(x, 0)) for x in inputs]
 
     def __getitem__(self, index):
         x = self.data[index]
         y = self.target[index]
-        x_len = self.length[index]
+        # x_len = self.length[index]
 
-        return x, y, x_len
+        return x, y#, x_len
 
     def __len__(self):
         return len(self.data)
@@ -70,8 +71,9 @@ class Dataset_Loader(dataset):
             train_data = Classification_Dataset(self.dataset_source_folder_path + '/train.csv')
             test_data = Classification_Dataset(self.dataset_source_folder_path + '/test.csv')
 
-            all_data = train_data.data['review'] + test_data.data['review']
-            inputs = ConstructVocab(all_data.values.tolist())
+            # all_data = train_data.data['review'] + test_data.data['review']
+            all_data = pd.concat([train_data.data['review'], test_data.data['review']]).to_list()
+            inputs = ConstructVocab(all_data)
             self.vocab_size = len(inputs.word_to_idx)
 
             # inputs_tensor = [[inputs.word_to_idx[word] for word in review] for review in all_data]
@@ -82,26 +84,34 @@ class Dataset_Loader(dataset):
             self.label_size = train_data.data['rating'][0]
 
             # Create vocab from the text in the reviews.
-            train_inputs = ConstructVocab(train_data.data['review'].values.tolist())
-            train_tensor = [[train_inputs.word_to_idx[word] for word in review] for review in train_data.data['review']]
+            # train_inputs = ConstructVocab(train_data.data['review'].values.tolist())
+            # train_tensor = [[train_inputs.word_to_idx[word] for word in review] for review in train_data.data['review']]
 
-            test_inputs = ConstructVocab(test_data.data['review'].values.tolist())
-            test_tensor = [[test_inputs.word_to_idx[word] for word in review] for review in test_data.data['review']]
+            # test_inputs = ConstructVocab(test_data.data['review'].values.tolist())
+            # test_tensor = [[test_inputs.word_to_idx[word] for word in review] for review in test_data.data['review']]
+
+            train_tensor = [[inputs.word_to_idx[word] for word in review.split()] for review in train_data.data['review']]
+            test_tensor = [[inputs.word_to_idx[word] for word in review.split()] for review in test_data.data['review']]
 
             # Add padding.
             max_len_train_input = max(len(i) for i in train_tensor)
-            train_tensor = set_tensor_padding(train_tensor, max_len_train_input)
+            train_tensor = torch.FloatTensor(set_tensor_padding(train_tensor, max_len_train_input))
             # print(train_tensor)
 
             max_len_test_input = max(len(i) for i in test_tensor)
-            test_tensor = set_tensor_padding(test_tensor, max_len_test_input)
+            test_tensor = torch.FloatTensor(set_tensor_padding(test_tensor, max_len_test_input))
 
             # Convert the processed data into DataLoader class so that Method_RNN can use it easily.
-            train_dataset = Model_Dataset(train_tensor, train_data.data['rating'])
-            test_dataset = Model_Dataset(test_tensor, test_data.data['rating'])
+            train_dataset = Model_Dataset(train_tensor, train_data.data['rating'].subtract(1))
+            test_dataset = Model_Dataset(test_tensor, test_data.data['rating'].subtract(1))
 
             train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
             test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=True)
+
+            # for input, label, _ in train_loader:
+            #     print(input, label)
+
+            # print(train_inputs.idx_to_word[20])
 
             return {'train': train_loader, 'test': test_loader}
 

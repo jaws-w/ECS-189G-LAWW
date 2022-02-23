@@ -9,7 +9,7 @@ if 1:
     DATASET = 0
 
     if DATASET == 0:
-        data_obj = Dataset_Loader('CLASSIFICATION', '')
+        data_obj = Dataset_Loader('CLASSIFICATION', '', 1000)
         data_obj.dataset_source_folder_path = '../../data/stage_4_data/text_classification'
         # data_obj.dataset_source_file_name = ''
     elif DATASET == 1:
