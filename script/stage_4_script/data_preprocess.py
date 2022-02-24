@@ -2,20 +2,17 @@
 Preprocesses the data for stage 4
 '''
 
-import imp
 import os
 import string
 import csv
 import re
 # import random
-# from multiprocessing import Process
-import threading
 
 # @returns [ {score: int, words: [words]}, ... ]
-def clean_classification_text(dataset_source_folder_path, reviews_dir_path, pos, out, MAX_WORDS):
+def clean_classification_text(reviews_dir_path, pos):
     print("Reading", reviews_dir_path)
     table = str.maketrans('', '', string.punctuation)
-    # cleaned_text_objs = []
+    cleaned_text_objs = []
 
     for file in os.listdir(dataset_source_folder_path + reviews_dir_path):
         # print(file)
@@ -35,11 +32,9 @@ def clean_classification_text(dataset_source_folder_path, reviews_dir_path, pos,
         # if len(stripped) > self.max_length:
         #     self.max_length = len(stripped)
         # print(stripped)
-        out.append((1 if pos else 0, stripped))
+        cleaned_text_objs.append((1 if pos else 0, stripped))
 
-    print('Finished', reviews_dir_path)
-
-    # return cleaned_text_objs
+    return cleaned_text_objs
 
 def clean_generation_text(file_path):
     print("Reading", file_path)
@@ -58,10 +53,10 @@ def clean_generation_text(file_path):
     return cleaned_jokes
 
 
-if __name__ == '__main__':
+if 1:
     # CLASSIFICATION: 0, GENERATION: 1
     DATASET = 0
-    MAX_WORDS = 200
+    MAX_WORDS = 500
 
     vocab = set()
 
@@ -70,32 +65,12 @@ if __name__ == '__main__':
         # data_obj.dataset_source_file_name = ''
 
         print('loading data...')
-        
+
         # read the reviews from files and clean them
-        # train_neg_txt = clean_classification_text('train/neg/', False)
-        # train_pos_txt = clean_classification_text('train/pos/', True)
-        # test_neg_txt = clean_classification_text('test/neg/', False)
-        # test_pos_txt = clean_classification_text('test/pos/', True)
-
-        train_neg_txt, train_pos_txt, test_neg_txt, test_pos_txt = [], [], [], []
-
-        procs = [threading.Thread(target=clean_classification_text, args=(dataset_source_folder_path, 'train/neg/', False, train_neg_txt, MAX_WORDS)),
-            threading.Thread(target=clean_classification_text, args=(dataset_source_folder_path, 'train/pos/', False, train_pos_txt, MAX_WORDS)),
-            threading.Thread(target=clean_classification_text, args=(dataset_source_folder_path, 'test/neg/', False, test_neg_txt, MAX_WORDS)),
-            threading.Thread(target=clean_classification_text, args=(dataset_source_folder_path, 'test/pos/', False, test_pos_txt, MAX_WORDS))]
-
-        for proc in procs:
-            proc.start()
-
-        for proc in procs:
-            proc.join()
-
-        # p_train_neg = Process(target=clean_classification_text, args=('train/neg/', False, train_neg_txt,))
-        # p_train_pos = Process(target=clean_classification_text, args=('train/pos/', False, train_pos_txt,))
-        # p_test_neg = Process(target=clean_classification_text, args=('test/neg/', False, test_neg_txt,))
-        # p_test_pos = Process(target=clean_classification_text, args=('test/pos/', False, test_pos_txt,))
-
-
+        train_neg_txt = clean_classification_text('train/neg/', False)
+        train_pos_txt = clean_classification_text('train/pos/', True)
+        test_neg_txt = clean_classification_text('test/neg/', False)
+        test_pos_txt = clean_classification_text('test/pos/', True)
 
         train_txt = train_neg_txt + train_pos_txt
         test_txt = test_neg_txt + test_pos_txt

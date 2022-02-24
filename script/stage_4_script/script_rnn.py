@@ -1,8 +1,8 @@
-from src.stage_4_code.Dataset_Loader import Dataset_Loader
-from src.stage_4_code.Method_RNN import Method_RNN
-from src.stage_4_code.Result_Saver import Result_Saver
-from src.stage_4_code.Setting_RNN import Setting_RNN
-from src.stage_4_code.Evaluate_Accuracy import Evaluate_Accuracy
+from stage_4_code.Dataset_Loader import Dataset_Loader
+from stage_4_code.Method_RNN import Method_RNN
+from stage_4_code.Result_Saver import Result_Saver
+from stage_4_code.Setting_RNN import Setting_RNN
+from stage_4_code.Evaluate_Accuracy import Evaluate_Accuracy
 
 if 1:
     # CLASSIFICATION: 0, GENERATION: 1
