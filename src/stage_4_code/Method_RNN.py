@@ -42,31 +42,8 @@ class Method_RNN(method, nn.Module):
             self.input_dim1 = 50
             self.hidden_dim1 = 50
 
-            # self.max_epoch = 15  # 84%
-            # self.learning_rate = 0.5e-2
-            #
-            # self.n_layers = 2
-            # self.dropout = 0.2
-            # self.out_size = 2
-            #
-            # self.input_dim = 32
-            # self.hidden_dim = 32
-            # self.input_dim1 = 32
-            # self.hidden_dim1 = 32
-            # self.input_dim2 = 32
-            # self.hidden_dim_final = 32
-
-            # self.max_epoch = 13  # 81%
-            # self.learning_rate = 1e-2
-            # self.hidden_dim = 32
-            # self.n_layers = 5
-            # self.dropout = 0.2
-            # self.out_size = 2
-            # self.input_dim = 50
-
             self.rnn = nn.GRU(self.input_dim, self.hidden_dim, self.n_layers, batch_first=True, dropout=self.dropout).to(self.device)
             self.rnn1 = nn.GRU(self.input_dim1, self.hidden_dim1, self.n_layers, batch_first=True, dropout=self.dropout).to(self.device)
-            # self.rnn2 = nn.GRU(self.input_dim2, self.hidden_dim_final, self.n_layers, batch_first=True, dropout=self.dropout).to(self.device)
             self.relu = nn.ReLU().to(self.device)
             self.fc = nn.Linear(self.hidden_dim1, self.out_size).to(self.device)
         elif DATASET == 1:
@@ -76,14 +53,9 @@ class Method_RNN(method, nn.Module):
 
     def forward(self, x, h):
         x = self.embedding(x)
-        # self.hidden = self.init_hidden()
         out, h = self.rnn(x, h)
         out, h = self.rnn1(out, h)
-        # out, h = self.rnn2(out, h)
-        # out = out[-1, :, :]
-        # out = self.dropout(out)
         out = self.fc(self.relu(out[:, -1]))
-        # out = self.fc1(self.relu(out))
 
         return out, h
 
@@ -110,7 +82,6 @@ class Method_RNN(method, nn.Module):
                 h = h.data
 
                 y_pred, h = self(inputs, h)
-#.view(self.batch_size, -1, self.input_dim)
                 y_true = labels
 
                 optimizer.zero_grad()
