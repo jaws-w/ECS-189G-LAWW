@@ -41,24 +41,23 @@ def clean_generation_text(file_path):
 
     table = str.maketrans('', '', string.punctuation)
 
-    cleaned_jokes = None
+    cleaned_jokes = []
 
     with open(file_path, 'r', encoding='UTF-8') as f:
         jokes = f.readlines()[1:]
+        # "1,'This is a joke."' => 'This is a joke.'
         jokes = [joke[re.search(r',', joke).start() + 2:-2] for joke in jokes]
         jokes = [' '.join([w.translate(table).lower() for w in joke.split()]) for joke in jokes]
 
-    cleaned_jokes = [(i, jokes[i]) for i in range(len(jokes))]
+    # cleaned_jokes = [(i, jokes[i]) for i in range(len(jokes))]
 
-    return cleaned_jokes
+    return jokes
 
 
 if 1:
     # CLASSIFICATION: 0, GENERATION: 1
-    DATASET = 0
+    DATASET = 1
     MAX_WORDS = 500
-
-    vocab = set()
 
     if DATASET == 0:
         dataset_source_folder_path = '../../data/stage_4_data/text_classification/'
@@ -89,9 +88,6 @@ if 1:
             train_writer.writerow(fields)
             train_writer.writerows(test_txt)
 
-
-
-
     elif DATASET == 1:
         dataset_source_folder_path = '../../data/stage_4_data/text_generation/'
         dataset_source_file_name = 'data'
@@ -104,5 +100,7 @@ if 1:
 
         with open(dataset_source_folder_path + 'cleaned.csv', 'w', newline='', encoding='UTF-8') as f:
             train_writer = csv.writer(f)
-            train_writer.writerow(['id', 'joke'])
-            train_writer.writerows(train_txt)
+            train_writer.writerow(['joke'])
+            jokes = [[joke] for joke in train_txt]
+            for joke in jokes:
+                train_writer.writerow(joke)

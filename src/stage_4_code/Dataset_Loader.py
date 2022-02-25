@@ -14,8 +14,9 @@ from torch.utils.data import Dataset, DataLoader
 
 import numpy as np
 import pandas as pd
+import random
 
-MAX_WORDS = 200
+# MAX_WORDS = 200
 
 
 # Gets data from csv files that contain all the reviews data in a single file.
@@ -79,7 +80,7 @@ class Dataset_Loader(dataset):
 
             self.label_size = train_data.data['rating'][0]
 
-            # Create vocab from the text in the reviews.
+            # Create input tensors.
             train_tensor = [[inputs.word_to_idx[word] for word in review.split()] for review in train_data.data['review']]
             test_tensor = [[inputs.word_to_idx[word] for word in review.split()] for review in test_data.data['review']]
 
@@ -103,10 +104,44 @@ class Dataset_Loader(dataset):
             return {'train': train_loader, 'test': test_loader}
 
         elif self.dataset_name == 'GENERATION':
-            
-            pass
+            first_n_words = 3
+            data = Classification_Dataset(self.dataset_source_folder_path + '/cleaned.csv')
 
-                
-                    
-                
+            jokes_obj = ConstructVocab(data.data['joke'])
 
+            # Create inputs and labels.
+            x, y = [], []
+            for joke in data.data['joke']:
+                words = joke.split()
+                # x[len(x):] = [jokes_obj.word_to_idx[word] for word in words[:first_n_words]]
+                # y[len(y):] = [jokes_obj.word_to_idx[word] for word in words[first_n_words:]]
+                x.append([jokes_obj.word_to_idx[word] for word in words[:first_n_words]])
+                y.append([jokes_obj.word_to_idx[word] for word in words[first_n_words:]])
+
+            self.vocab_size = len(jokes_obj.word_to_idx)
+
+            # Establish padding size for labels.
+            self.label_size = max(len(joke_ending) for joke_ending in y)
+
+            # Create training and testing tensors and add padding.
+            max_len_input = first_n_words
+            x_train_tensor = torch.LongTensor(set_tensor_padding(x, max_len_input)).to(self.device)
+            y_train_tensor = torch.LongTensor(set_tensor_padding(y, self.label_size)).to(self.device)
+
+            rand_sample = randomSample(0, len(x), 10)
+            x_test = [x[i] for i in rand_sample]
+            y_test = [y[i] for i in rand_sample]
+            x_test_tensor = torch.LongTensor(set_tensor_padding(x_test, max_len_input)).to(self.device)
+            y_test_tensor = torch.LongTensor(set_tensor_padding(y_test, self.label_size)).to(self.device)
+
+            # Convert the processed data into DataLoader class so that Method_RNN can use it easily.
+            train_dataset = Model_Dataset(x_train_tensor, y_train_tensor)
+            test_dataset = Model_Dataset(x_test_tensor, y_test_tensor)
+
+            train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
+            test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
+
+            return {'train': train_loader, 'test': test_loader}
+
+def randomSample(start, end, amount):
+    return [random.randint(start, end) for _ in range(amount)]
