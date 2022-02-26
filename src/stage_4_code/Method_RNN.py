@@ -26,6 +26,7 @@ class Method_RNN(method, nn.Module):
         method.__init__(self, mName, mDescription)
         nn.Module.__init__(self)
         self.DATASET = DATASET
+        self.out_size = None
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -49,12 +50,12 @@ class Method_RNN(method, nn.Module):
             self.fc = nn.Linear(self.hidden_dim1, self.out_size).to(self.device)
         elif DATASET == 1:
             # GENERATION config
-            self.max_epoch = 10  # 85%
+            self.max_epoch = 10  # ___
             self.learning_rate = 0.5e-2
 
             self.n_layers = 2
             self.dropout = 0.2
-            self.out_size = 2
+            # self.out_size = 2
 
             self.input_dim = 50
             self.hidden_dim = 50
@@ -66,7 +67,7 @@ class Method_RNN(method, nn.Module):
             self.rnn1 = nn.GRU(self.input_dim1, self.hidden_dim1, self.n_layers, batch_first=True,
                                dropout=self.dropout).to(self.device)
             self.relu = nn.ReLU().to(self.device)
-            self.fc = nn.Linear(self.hidden_dim1, self.out_size).to(self.device)
+            # self.fc = nn.Linear(self.hidden_dim1, self.out_size).to(self.device)
             pass
 
     def forward(self, x, h):
@@ -177,7 +178,8 @@ class Method_RNN(method, nn.Module):
         print('method running...')
         print('--start training...')
         self.embedding = nn.Embedding(self.vocab_input_size, self.input_dim).to(self.device)
-        # self.fc = nn.Linear(self.hidden_dim, self.out_size, dtype=torch.double)
+        if self.DATASET == 1:
+            self.fc = nn.Linear(self.hidden_dim1, self.out_size).to(self.device)
 
         self.train_data(self.data['train'])
         print('--start testing...')

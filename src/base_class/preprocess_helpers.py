@@ -26,10 +26,11 @@ class ConstructVocab:
 
         # add a padding token with index 0
         self.word_to_idx['<pad>'] = 0
+        self.word_to_idx['<period>'] = 1
 
         # word to index mapping
         for index, word in enumerate(self.vocab):
-            self.word_to_idx[word] = index + 1  # +1 offset since 0 is the pad
+            self.word_to_idx[word] = index + 2  # +2 offset for <pad> and <period>
 
         # index to word mapping
         for word, index in self.word_to_idx.items():
@@ -53,3 +54,7 @@ def set_tensor_padding(tensor, max_len):
     return np.array([do_padding(x, max_len) for x in tensor])
 
 
+def set_padding(arr, max_len, symbol):
+    while len(arr) < max_len:
+        arr.append(symbol)
+    return arr

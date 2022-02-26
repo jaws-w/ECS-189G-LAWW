@@ -6,7 +6,7 @@ from stage_4_code.Evaluate_Accuracy import Evaluate_Accuracy
 
 if 1:
     # CLASSIFICATION: 0, GENERATION: 1
-    DATASET = 0
+    DATASET = 1
 
     if DATASET == 0:
         data_obj = Dataset_Loader('CLASSIFICATION', '', 1000)
