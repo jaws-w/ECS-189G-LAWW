@@ -1,8 +1,8 @@
-from stage_4_code.Dataset_Loader import Dataset_Loader
-from stage_4_code.Method_RNN import Method_RNN
-from stage_4_code.Result_Saver import Result_Saver
-from stage_4_code.Setting_RNN import Setting_RNN
-from stage_4_code.Evaluate_Accuracy import Evaluate_Accuracy
+from src.stage_4_code.Dataset_Loader import Dataset_Loader
+from src.stage_4_code.Method_RNN import Method_RNN
+from src.stage_4_code.Result_Saver import Result_Saver
+from src.stage_4_code.Setting_RNN import Setting_RNN
+from src.stage_4_code.Evaluate_Accuracy import Evaluate_Accuracy
 
 if 1:
     # CLASSIFICATION: 0, GENERATION: 1
@@ -13,7 +13,10 @@ if 1:
         data_obj.dataset_source_folder_path = '../../data/stage_4_data/text_classification'
         # data_obj.dataset_source_file_name = ''
     elif DATASET == 1:
-        data_obj = Dataset_Loader('GENERATION', '')
+        # data_obj = Dataset_Loader('GENERATION', '', 23815) # seq_length 1
+        data_obj = Dataset_Loader('GENERATION', '', 22193)
+        # data_obj = Dataset_Loader('GENERATION', '', 20571)
+        # data_obj = Dataset_Loader('GENERATION', '', 17332) # 5
         data_obj.dataset_source_folder_path = '../../data/stage_4_data/text_generation/'
         data_obj.dataset_source_file_name = 'data'
 
