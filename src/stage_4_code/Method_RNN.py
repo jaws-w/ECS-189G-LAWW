@@ -51,8 +51,8 @@ class Method_RNN(method, nn.Module):
             self.fc = nn.Linear(self.hidden_dim1, self.out_size).to(self.device)
         elif DATASET == 1:
             # GENERATION config
-            self.max_epoch = 300  # ___
-            self.learning_rate = 1e-2
+            self.max_epoch = 400  # ___
+            self.learning_rate = 0.5e-2
 
             self.n_layers = 2
             self.dropout = 0.25
@@ -63,10 +63,10 @@ class Method_RNN(method, nn.Module):
             self.input_dim1 = 100
             self.hidden_dim1 = 100
 
-            # self.rnn = nn.GRU(self.input_dim, self.hidden_dim, self.n_layers, batch_first=True,
-            #                   dropout=self.dropout).to(self.device)
-            self.rnn = nn.LSTM(self.input_dim, self.hidden_dim, self.n_layers, batch_first=True,
+            self.rnn = nn.GRU(self.input_dim, self.hidden_dim, self.n_layers, batch_first=True,
                               dropout=self.dropout).to(self.device)
+            # self.rnn = nn.LSTM(self.input_dim, self.hidden_dim, self.n_layers, batch_first=True,
+            #                   dropout=self.dropout).to(self.device)
             # self.rnn1 = nn.GRU(self.input_dim1, self.hidden_dim1, self.n_layers, batch_first=True,
                             #    dropout=self.dropout).to(self.device)
             self.relu = nn.ReLU().to(self.device)
@@ -82,12 +82,11 @@ class Method_RNN(method, nn.Module):
         return out, h
 
     def init_hidden(self, batch_size=1):
-        # weight = next(self.parameters()).data
-        # # hidden = weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().to(self.device)
-        # hidden = weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().to(self.device)
-        # return hidden
-        return (torch.zeros(self.n_layers, batch_size, self.hidden_dim, device=self.device),
-                torch.zeros(self.n_layers, batch_size, self.hidden_dim, device=self.device))
+        weight = next(self.parameters()).data
+        hidden = weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().to(self.device)
+        return hidden
+        # return (torch.zeros(self.n_layers, batch_size, self.hidden_dim, device=self.device),
+        #         torch.zeros(self.n_layers, batch_size, self.hidden_dim, device=self.device))
 
     def doTrainTextClassification(self, traindata):
         # optimizer = optim.SGD(self.parameters(), lr=self.learning_rate, momentum=0.9)

@@ -14,8 +14,8 @@ if 1:
         # data_obj.dataset_source_file_name = ''
     elif DATASET == 1:
         # data_obj = Dataset_Loader('GENERATION', '', 23815) # seq_length 1
-        data_obj = Dataset_Loader('GENERATION', '', 22193)
-        # data_obj = Dataset_Loader('GENERATION', '', 20571)
+        # data_obj = Dataset_Loader('GENERATION', '', 22193) # 2
+        data_obj = Dataset_Loader('GENERATION', '', 20571) # 3
         # data_obj = Dataset_Loader('GENERATION', '', 17332) # 5
         data_obj.dataset_source_folder_path = '../../data/stage_4_data/text_generation/'
         data_obj.dataset_source_file_name = 'data'
