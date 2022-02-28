@@ -6,7 +6,7 @@ from src.stage_4_code.Evaluate_Accuracy import Evaluate_Accuracy
 
 if 1:
     # CLASSIFICATION: 0, GENERATION: 1
-    DATASET = 1
+    DATASET = 0
 
     if DATASET == 0:
         data_obj = Dataset_Loader('CLASSIFICATION', '', 1000)
@@ -25,23 +25,6 @@ if 1:
     setting_obj = Setting_RNN('RNN Setting', '')
     evaluate_obj = Evaluate_Accuracy('accuracy', '')
     result_obj = Result_Saver('saver', '')
-
-    # print(data_obj.max_length)
-
-    # setting_obj.prepare(data_obj, method_obj, result_obj, evaluate_obj)
-    # setting_obj.print_setup_summary()
-    # setting_obj.load_run_save_evaluate()
-
-    # result_obj = Result_Saver('saver', '')
-    # result_obj.result_destination_folder_path = '../../result/stage_3_result/CNN_'
-    # # result_obj.result_destination_file_name = 'prediction_result'
-    # result_obj.result_destination_file_name = 'prediction_result_ORL'
-    # # result_obj.result_destination_file_name = 'prediction_result_CIFAR'
-
-    # setting_obj = Setting_RNN('CNN Setting', '')
-
-    # evaluate_obj = Evaluate_Accuracy('accuracy', '')
-
 
     # # ---- running section ---------------------------------
     print('************ Start ************')

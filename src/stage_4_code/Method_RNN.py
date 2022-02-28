@@ -6,21 +6,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
 
-import pickle
-import matplotlib.pyplot as plt
-
 
 # We used the readings and tutorial at: https://blog.floydhub.com/gru-with-pytorch/ to learn more about GRU implementation.
 class Method_RNN(method, nn.Module):
-
-    # data = None
-    # batch_size = None
-    # vocab_input_size = None
-    
-
-    # CLASSIFICATION: n = 2, l_r = 1e-3
-    # GENERATION: n = 10, l_r = 1e-3
-    
 
     def __init__(self, mName, mDescription, DATASET):
         method.__init__(self, mName, mDescription)
@@ -29,12 +17,11 @@ class Method_RNN(method, nn.Module):
         self.out_size = None
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        # self.device = torch.device("cpu")
 
         if DATASET == 0:
             # CLASSIFICATION config
-            self.max_epoch = 10  # 85%
-            self.learning_rate = 0.5e-2
+            self.max_epoch = 20  # 85%
+            self.learning_rate = 1e-3
 
             self.n_layers = 2
             self.dropout = 0.2
@@ -51,24 +38,21 @@ class Method_RNN(method, nn.Module):
             self.fc = nn.Linear(self.hidden_dim1, self.out_size).to(self.device)
         elif DATASET == 1:
             # GENERATION config
-            self.max_epoch = 400  # ___
-            self.learning_rate = 0.5e-2
+            self.max_epoch = 100  # 91%
+            self.learning_rate = 5e-3
 
             self.n_layers = 2
-            self.dropout = 0.25
+            self.dropout = 0.2
             self.out_size = 1
 
-            self.input_dim = 25
-            self.hidden_dim = 100
-            self.input_dim1 = 100
-            self.hidden_dim1 = 100
+            x = 512
+            self.input_dim = 128
+            self.hidden_dim = x
+            self.input_dim1 = x
+            self.hidden_dim1 = x
 
             self.rnn = nn.GRU(self.input_dim, self.hidden_dim, self.n_layers, batch_first=True,
                               dropout=self.dropout).to(self.device)
-            # self.rnn = nn.LSTM(self.input_dim, self.hidden_dim, self.n_layers, batch_first=True,
-            #                   dropout=self.dropout).to(self.device)
-            # self.rnn1 = nn.GRU(self.input_dim1, self.hidden_dim1, self.n_layers, batch_first=True,
-                            #    dropout=self.dropout).to(self.device)
             self.relu = nn.ReLU().to(self.device)
             self.fc = nn.Linear(self.hidden_dim1, self.out_size).to(self.device)
             pass
@@ -76,7 +60,8 @@ class Method_RNN(method, nn.Module):
     def forward(self, x, h):
         x = self.embedding(x)
         out, h = self.rnn(x, h)
-        # out, h = self.rnn1(out, h)
+        if self.DATASET == 0:
+            out, h = self.rnn1(out, h)
         out = self.fc(self.relu(out[:, -1]))
 
         return out, h
@@ -85,15 +70,10 @@ class Method_RNN(method, nn.Module):
         weight = next(self.parameters()).data
         hidden = weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().to(self.device)
         return hidden
-        # return (torch.zeros(self.n_layers, batch_size, self.hidden_dim, device=self.device),
-        #         torch.zeros(self.n_layers, batch_size, self.hidden_dim, device=self.device))
 
     def doTrainTextClassification(self, traindata):
-        # optimizer = optim.SGD(self.parameters(), lr=self.learning_rate, momentum=0.9)
         optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
         loss_function = nn.CrossEntropyLoss()
-        # loss_function = nn.NLLLoss()
-        # loss_function = nn.KLDivLoss()
         accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
 
         for epoch in range(self.max_epoch):
@@ -115,7 +95,6 @@ class Method_RNN(method, nn.Module):
                 train_loss.backward()
                 optimizer.step()
 
-            # if epoch % 10 == 0:    # print every z mini-batches
             accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
             accuracy, mean_score, std_score, avg_precision, std_precision, avg_recall, std_recall, avg_f1, std_f1 = accuracy_evaluator.evaluate()
             print('Epoch:', epoch + 1, 'Loss:', train_loss.item())
@@ -131,14 +110,11 @@ class Method_RNN(method, nn.Module):
         accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
 
         for epoch in range(self.max_epoch):
-            # y_pred, y_true, train_loss = 0, 0, 0
 
             h = self.init_hidden(self.batch_size)
 
             for i, dataset in enumerate(traindata, 0):
                 inputs, labels = dataset
-
-                # h = h.data
 
                 y_pred, h = self(inputs, h)
                 y_true = labels
@@ -149,7 +125,7 @@ class Method_RNN(method, nn.Module):
                 train_loss.backward()
                 optimizer.step()
 
-            if epoch % 10 == 0:    # print every 5 epochs
+            if epoch % 10 == 0 or epoch == self.max_epoch - 1:    # print every 10 epochs
                 accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
                 accuracy, mean_score, std_score, avg_precision, std_precision, avg_recall, std_recall, avg_f1, std_f1 = accuracy_evaluator.evaluate()
                 print('Epoch:', epoch + 1, 'Loss:', train_loss.item())
@@ -167,9 +143,11 @@ class Method_RNN(method, nn.Module):
         try:
             prompt = [self.data['vocab'].word_to_idx[word] for word in joke_start]
         except KeyError:
-            print("Naughty naughty, " + joke_start[-1] + " is not a real word")
+            print("Naughty naughty, that's not a real word")
             joke_start = input("Use proper words this time : ").split()
             prompt = [self.data['vocab'].word_to_idx[word] for word in joke_start]
+
+        print(' '.join(joke_start), end=' ')
 
         while True:
 
@@ -180,15 +158,14 @@ class Method_RNN(method, nn.Module):
             next_word = self.data['vocab'].idx_to_word[next_word_idx]
             print(next_word, end=' ')
 
+            max_len = 50
             if next_word == '<period>' or next_word == '<pad>':
                 print()
                 return
-            elif next_word == prompt[-1] and next_word == prompt[-2]:
-                print()
-
+            elif len(prompt) >= max_len:
+                print("\n...Max output reached. Joke terminated.\n")
                 return
             else:
-                prompt = prompt[1:]
                 prompt.append(next_word_idx)
 
     def train_data(self, traindata):
@@ -203,14 +180,12 @@ class Method_RNN(method, nn.Module):
             pred_y, true_y = [],[]
             for i, dataset in enumerate(testdata, 0):
                 inputs, labels = dataset
-                outputs, _ = self(inputs, self.init_hidden())
+                outputs, _ = self(inputs, self.init_hidden(self.batch_size))
                 pred_y.append(outputs.max(1)[1])
                 true_y.append(labels)
 
             return torch.flatten(torch.stack(pred_y)), torch.flatten(torch.stack(true_y))
         elif self.DATASET == 1:
-            # TODO: implement test() for text generation.
-            # Exception('TODO: implement test() for text generation.')
             self.eval()
             while True:
                 self.predict_joke()

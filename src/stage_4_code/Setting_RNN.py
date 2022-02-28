@@ -28,8 +28,6 @@ class Setting_RNN(setting):
         
         # save result
         self.result.data = learned_result
-        #self.result.fold_count = fold_count
-        # self.result.save()
 
         self.evaluate.data = learned_result
         score_list.append(self.evaluate.evaluate())
