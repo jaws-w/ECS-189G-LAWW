@@ -1,5 +1,7 @@
-from base_class.method import method
-from stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
+# from base_class.method import method
+# from stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
+from src.base_class.method import method
+from src.stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
 from torch_geometric.data import Data
 from torch_geometric.nn import GCNConv
 
