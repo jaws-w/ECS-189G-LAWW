@@ -1,7 +1,7 @@
-# from base_class.method import method
-# from stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
-from src.base_class.method import method
-from src.stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
+from base_class.method import method
+from stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
+# from src.base_class.method import method
+# from src.stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
 from torch_geometric.data import Data
 from torch_geometric.nn import GCNConv
 
@@ -72,7 +72,7 @@ class Method_GCN(method, nn.Module):
 
         for epoch in range(self.max_epoch):
             y_pred = self(traindata)
-            y_true = traindata.y[self.data['train_test_val']['idx_train']]
+            y_true = traindata.y
 
             optimizer.zero_grad()
             train_loss = loss_function(y_pred, y_true)
@@ -117,10 +117,11 @@ class Method_GCN(method, nn.Module):
 
         edge_idx = torch.LongTensor(self.data['graph']['edge']).t().contiguous()
         traindata = Data(
-            x=self.data['graph']['X'][self.data['train_test_val']['idx_train']],
+            x=self.data['graph']['X'],
             edge_index=edge_idx,
             # edge_attr=self.data['graph']['X'],
-            y=self.data['graph']['y'][self.data['train_test_val']['idx_train']]
+            y=self.data['graph']['y'][self.data['train_test_val']['idx_train']],
+            pos=self.data['train_test_val']['idx_train']
         )
 
         if self.DATASET == 0:
@@ -131,7 +132,7 @@ class Method_GCN(method, nn.Module):
             pass
         elif self.DATASET == 3:
             # Debug cora
-            self.conv1 = GCNConv(traindata.num_node_features, 16)
+            self.conv1 = GCNConv(1433, 16)
             self.conv2 = GCNConv(16, 7)  # cora has 7 different classes
 
         self.train_data(traindata)
@@ -139,7 +140,3 @@ class Method_GCN(method, nn.Module):
         if self.DATASET == 0:
             pred_y, y_true = self.test(self.data['test'])
             return {'pred_y': pred_y, 'true_y': y_true}
-
-        elif self.DATASET == 1:
-            self.test(self.data['test'])
-            return

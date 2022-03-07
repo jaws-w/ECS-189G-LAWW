@@ -4,8 +4,11 @@ Concrete IO class for a specific dataset
 # Copyright (c) 2017-Current Jiawei Zhang <jiawei@ifmlab.org>
 # License: TBD
 
-from src.base_class.dataset import dataset
-from src.base_class.preprocess_helpers import ConstructVocab, set_tensor_padding, set_padding
+from base_class.dataset import dataset
+from base_class.preprocess_helpers import ConstructVocab, set_tensor_padding, set_padding
+
+# from src.base_class.dataset import dataset
+# from src.base_class.preprocess_helpers import ConstructVocab, set_tensor_padding, set_padding
 
 import torch
 from torch.utils.data import Dataset, DataLoader

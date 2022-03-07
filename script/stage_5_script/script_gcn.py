@@ -1,14 +1,14 @@
-# from stage_5_code.Dataset_Loader_Node_Classification import Dataset_Loader
-# from stage_5_code.Method_GCN import Method_GCN
-# from stage_5_code.Result_Saver import Result_Saver
-# from stage_5_code.Setting_GCN import Setting_GCN
-# from stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
+from stage_5_code.Dataset_Loader_Node_Classification import Dataset_Loader
+from stage_5_code.Method_GCN import Method_GCN
+from stage_5_code.Result_Saver import Result_Saver
+from stage_5_code.Setting_GCN import Setting_GCN
+from stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
 
-from src.stage_5_code.Dataset_Loader_Node_Classification import Dataset_Loader
-from src.stage_5_code.Method_GCN import Method_GCN
-from src.stage_5_code.Result_Saver import Result_Saver
-from src.stage_5_code.Setting_GCN import Setting_GCN
-from src.stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
+# from src.stage_5_code.Dataset_Loader_Node_Classification import Dataset_Loader
+# from src.stage_5_code.Method_GCN import Method_GCN
+# from src.stage_5_code.Result_Saver import Result_Saver
+# from src.stage_5_code.Setting_GCN import Setting_GCN
+# from src.stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
 
 if 1:
     # cora: 0, citeseer: 1, pubmed: 2, cora-small: 3
@@ -16,7 +16,7 @@ if 1:
 
     DATA_FOLDER = '../../data/stage_5_data/'
 
-    if DATASET == 0:
+    if DATASET == 3:
         data_obj = Dataset_Loader(dName='cora')
         data_obj.dataset_source_folder_path = DATA_FOLDER + 'cora'
     elif DATASET == 1:

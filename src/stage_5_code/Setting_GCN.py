@@ -1,5 +1,6 @@
-from src.base_class.setting import setting
-# from base_class.setting import setting
+# from src.base_class.setting import setting
+
+from base_class.setting import setting
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 import numpy as np
 import torch
