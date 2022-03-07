@@ -5,7 +5,7 @@ Concrete ResultModule class for a specific experiment ResultModule output
 # Copyright (c) 2017-Current Jiawei Zhang <jiawei@ifmlab.org>
 # License: TBD
 
-from src.base_class.result import result
+from base_class.result import result
 import pickle
 
 

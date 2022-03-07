@@ -1,4 +1,4 @@
-from src.base_class.setting import setting
+from base_class.setting import setting
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 import numpy as np
 import torch
@@ -19,9 +19,9 @@ class Setting_GCN(setting):
 
         # load data
         self.method.data = self.dataset.load()
-        self.method.batch_size = self.dataset.batch_size
-        self.method.vocab_input_size = self.dataset.vocab_size
-        self.method.out_size = self.dataset.label_size
+        # self.method.batch_size = self.dataset.batch_size
+        # self.method.vocab_input_size = self.dataset.vocab_size
+        # self.method.out_size = self.dataset.label_size
 
         # run module
         learned_result = self.method.run()

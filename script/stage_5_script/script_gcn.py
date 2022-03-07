@@ -1,8 +1,8 @@
-from src.stage_5_code.Dataset_Loader_Node_Classification import Dataset_Loader
-from src.stage_5_code.Method_GCN import Method_GCN
-from src.stage_5_code.Result_Saver import Result_Saver
-from src.stage_5_code.Setting_GCN import Setting_GCN
-from src.stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
+from stage_5_code.Dataset_Loader_Node_Classification import Dataset_Loader
+from stage_5_code.Method_GCN import Method_GCN
+from stage_5_code.Result_Saver import Result_Saver
+from stage_5_code.Setting_GCN import Setting_GCN
+from stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
 
 if 1:
     # cora: 0, citeseer: 1, pubmed: 2, cora-small: 3
@@ -12,16 +12,16 @@ if 1:
 
     if DATASET == 0:
         data_obj = Dataset_Loader(dName='cora')
-        data_obj.dataset_source_folder_path = DATA_FOLDER + 'cora/'
+        data_obj.dataset_source_folder_path = DATA_FOLDER + 'cora'
     elif DATASET == 1:
         data_obj = Dataset_Loader(dName='citeseer')
-        data_obj.dataset_source_folder_path = DATA_FOLDER + 'citeseer/'
+        data_obj.dataset_source_folder_path = DATA_FOLDER + 'citeseer'
     elif DATASET == 2:
         data_obj = Dataset_Loader(dName='pubmed')
-        data_obj.dataset_source_folder_path = DATA_FOLDER + 'pubmed/'
+        data_obj.dataset_source_folder_path = DATA_FOLDER + 'pubmed'
     elif DATASET == 3:
         data_obj = Dataset_Loader(dName='cora-small')
-        data_obj.dataset_source_folder_path = DATA_FOLDER + 'cora/'
+        data_obj.dataset_source_folder_path = DATA_FOLDER + 'cora'
         
 
     # init objects to run the RNN model.

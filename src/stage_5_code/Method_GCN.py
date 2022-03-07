@@ -1,5 +1,8 @@
-from src.base_class.method import method
-from src.stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
+from base_class.method import method
+from stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
+from torch_geometric.data import Data
+from torch_geometric.nn import GCNConv
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -19,7 +22,7 @@ class Method_GCN(method, nn.Module):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         if DATASET == 0:
-            # CLASSIFICATION config
+            # CORA config
             self.max_epoch = 20  # 85%
             self.learning_rate = 1e-3
 
@@ -32,68 +35,47 @@ class Method_GCN(method, nn.Module):
             self.input_dim1 = 50
             self.hidden_dim1 = 50
 
-            self.rnn = nn.GRU(self.input_dim, self.hidden_dim, self.n_layers, batch_first=True, dropout=self.dropout).to(self.device)
-            self.rnn1 = nn.GRU(self.input_dim1, self.hidden_dim1, self.n_layers, batch_first=True, dropout=self.dropout).to(self.device)
+            self.conv1 = None
+            self.conv2 = None
             self.relu = nn.ReLU().to(self.device)
             self.fc = nn.Linear(self.hidden_dim1, self.out_size).to(self.device)
         elif DATASET == 1:
-            # GENERATION config
-            self.max_epoch = 100  # 91%
-            self.learning_rate = 5e-3
-
-            self.n_layers = 2
-            self.dropout = 0.2
-            self.out_size = 1
-
-            x = 512
-            self.input_dim = 128
-            self.hidden_dim = x
-            self.input_dim1 = x
-            self.hidden_dim1 = x
-
-            self.rnn = nn.GRU(self.input_dim, self.hidden_dim, self.n_layers, batch_first=True,
-                              dropout=self.dropout).to(self.device)
-            self.relu = nn.ReLU().to(self.device)
-            self.fc = nn.Linear(self.hidden_dim1, self.out_size).to(self.device)
+            # CITESEER config
             pass
+        elif DATASET == 2:
+            # PUBMED config
+            pass
+        elif DATASET == 3:
+            # DEBUG config (mini-CORA)
+            self.max_epoch = 20  # 85%
+            self.learning_rate = 1e-3
 
-    def forward(self, x, h):
-        x = self.embedding(x)
-        out, h = self.rnn(x, h)
-        if self.DATASET == 0:
-            out, h = self.rnn1(out, h)
-        out = self.fc(self.relu(out[:, -1]))
+            self.conv1 = None
+            self.conv2 = None
 
-        return out, h
+    def forward(self, traindata):
+        x, edge_index = traindata.x, traindata.edge_index
 
-    def init_hidden(self, batch_size=1):
-        weight = next(self.parameters()).data
-        hidden = weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().to(self.device)
-        return hidden
+        x = self.conv1(x, edge_index)
+        x = F.relu(x)
+        x = F.dropout(x, training=self.training)
+        x = self.conv2(x, edge_index)
 
-    def doTrainTextClassification(self, traindata):
+        return F.log_softmax(x, dim=1)
+
+    def do_train_cora(self, traindata):
         optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
         loss_function = nn.CrossEntropyLoss()
         accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
 
         for epoch in range(self.max_epoch):
-            y_pred, y_true, train_loss = 0, 0, 0
+            y_pred = self(traindata)
+            y_true = traindata.y[self.data['train_test_val']['idx_train']]
 
-            h = self.init_hidden(self.batch_size)
-
-            for i, dataset in enumerate(traindata, 0):
-                inputs, labels = dataset
-
-                h = h.data
-
-                y_pred, h = self(inputs, h)
-                y_true = labels
-
-                optimizer.zero_grad()
-
-                train_loss = loss_function(y_pred, y_true)
-                train_loss.backward()
-                optimizer.step()
+            optimizer.zero_grad()
+            train_loss = loss_function(y_pred, y_true)
+            train_loss.backward()
+            optimizer.step()
 
             accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
             accuracy, mean_score, std_score, avg_precision, std_precision, avg_recall, std_recall, avg_f1, std_f1 = accuracy_evaluator.evaluate()
@@ -104,102 +86,53 @@ class Method_GCN(method, nn.Module):
             print('RNN F1: ' + str(avg_f1) + ' +/- ' + str(std_f1))
         print('Finished Training')
 
-    def doTrainTextGeneration(self, traindata):
-        optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
-        loss_function = nn.CrossEntropyLoss()
-        accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
-
-        for epoch in range(self.max_epoch):
-
-            h = self.init_hidden(self.batch_size)
-
-            for i, dataset in enumerate(traindata, 0):
-                inputs, labels = dataset
-
-                y_pred, h = self(inputs, h)
-                y_true = labels
-
-                optimizer.zero_grad()
-
-                train_loss = loss_function(y_pred, y_true)
-                train_loss.backward()
-                optimizer.step()
-
-            if epoch % 10 == 0 or epoch == self.max_epoch - 1:    # print every 10 epochs
-                accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
-                accuracy, mean_score, std_score, avg_precision, std_precision, avg_recall, std_recall, avg_f1, std_f1 = accuracy_evaluator.evaluate()
-                print('Epoch:', epoch + 1, 'Loss:', train_loss.item())
-                print('RNN Accuracy: ' + str(accuracy))
-                print('RNN Precision: ' + str(avg_precision) + ' +/- ' + str(std_precision))
-                print('RNN Recall: ' + str(avg_recall) + ' +/- ' + str(std_recall))
-                print('RNN F1: ' + str(avg_f1) + ' +/- ' + str(std_f1))
-        print('Finished Training')
-
-    def predict_joke(self):
-        joke_start = input("Enter a joke beginning : ")
-        joke_start = joke_start.split()
-
-        h = self.init_hidden()
-        try:
-            prompt = [self.data['vocab'].word_to_idx[word] for word in joke_start]
-        except KeyError:
-            print("Naughty naughty, that's not a real word")
-            joke_start = input("Use proper words this time : ").split()
-            prompt = [self.data['vocab'].word_to_idx[word] for word in joke_start]
-
-        print(' '.join(joke_start), end=' ')
-
-        while True:
-
-            prompt_tensor = torch.tensor([prompt], device=self.device)
-            
-            y_pred, h = self(prompt_tensor, h)
-            next_word_idx = np.argmax(F.softmax(y_pred[0], dim=0).detach().cpu().numpy())
-            next_word = self.data['vocab'].idx_to_word[next_word_idx]
-            print(next_word, end=' ')
-
-            max_len = 50
-            if next_word == '<period>' or next_word == '<pad>':
-                print()
-                return
-            elif len(prompt) >= max_len:
-                print("\n...Max output reached. Joke terminated.\n")
-                return
-            else:
-                prompt.append(next_word_idx)
-
     def train_data(self, traindata):
         if self.DATASET == 0:
-            self.doTrainTextClassification(traindata)
-        if self.DATASET == 1:
-            self.doTrainTextGeneration(traindata)
+            pass
+        elif self.DATASET == 1:
+            pass
+        elif self.DATASET == 2:
+            pass
+        elif self.DATASET == 3:
+            self.do_train_cora(traindata)
     
     def test(self, testdata):
         if self.DATASET == 0:
-            self.eval()
-            pred_y, true_y = [],[]
-            for i, dataset in enumerate(testdata, 0):
-                inputs, labels = dataset
-                outputs, _ = self(inputs, self.init_hidden(self.batch_size))
-                pred_y.append(outputs.max(1)[1])
-                true_y.append(labels)
-
-            return torch.flatten(torch.stack(pred_y)), torch.flatten(torch.stack(true_y))
+            pass
         elif self.DATASET == 1:
-            self.eval()
-            while True:
-                self.predict_joke()
-
-
+            pass
+        elif self.DATASET == 2:
+            pass
+        elif self.DATASET == 3:
+            pass
 
     def run(self):
         print('method running...')
         print('--start training...')
-        self.embedding = nn.Embedding(self.vocab_input_size, self.input_dim).to(self.device)
-        if self.DATASET == 1:
-            self.fc = nn.Linear(self.hidden_dim1, self.vocab_input_size).to(self.device)
+        # self.embedding = nn.Embedding(self.vocab_input_size, self.input_dim).to(self.device)
+        # if self.DATASET == 1:
+        #     self.fc = nn.Linear(self.hidden_dim1, self.vocab_input_size).to(self.device)
 
-        self.train_data(self.data['train'])
+        edge_idx = torch.LongTensor(self.data['graph']['edge']).t().contiguous()
+        traindata = Data(
+            x=self.data['graph']['node'],
+            edge_index=edge_idx,
+            edge_attr=self.data['graph']['X'],
+            y=self.data['graph']['y']
+        )
+
+        if self.DATASET == 0:
+            pass
+        elif self.DATASET == 1:
+            pass
+        elif self.DATASET == 2:
+            pass
+        elif self.DATASET == 3:
+            # Debug cora
+            self.conv1 = GCNConv(traindata.num_node_features, 16)
+            self.conv2 = GCNConv(16, 7)  # cora has 7 different classes
+
+        self.train_data(traindata)
         print('--start testing...')
         if self.DATASET == 0:
             pred_y, y_true = self.test(self.data['test'])
