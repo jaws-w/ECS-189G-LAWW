@@ -117,10 +117,10 @@ class Method_GCN(method, nn.Module):
 
         edge_idx = torch.LongTensor(self.data['graph']['edge']).t().contiguous()
         traindata = Data(
-            x=self.data['graph']['node'],
+            x=self.data['graph']['X'][self.data['train_test_val']['idx_train']],
             edge_index=edge_idx,
-            edge_attr=self.data['graph']['X'],
-            y=self.data['graph']['y']
+            # edge_attr=self.data['graph']['X'],
+            y=self.data['graph']['y'][self.data['train_test_val']['idx_train']]
         )
 
         if self.DATASET == 0:
