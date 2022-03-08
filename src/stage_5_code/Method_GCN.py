@@ -75,11 +75,11 @@ class Method_GCN(method, nn.Module):
             y_true = traindata.y
 
             optimizer.zero_grad()
-            train_loss = loss_function(y_pred, y_true)
+            train_loss = loss_function(y_pred[self.data['train_test_val']['idx_train']], y_true)
             train_loss.backward()
             optimizer.step()
 
-            accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
+            accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred[self.data['train_test_val']['idx_train']].max(1)[1]}
             accuracy, mean_score, std_score, avg_precision, std_precision, avg_recall, std_recall, avg_f1, std_f1 = accuracy_evaluator.evaluate()
             print('Epoch:', epoch + 1, 'Loss:', train_loss.item())
             print('RNN Accuracy: ' + str(accuracy))
