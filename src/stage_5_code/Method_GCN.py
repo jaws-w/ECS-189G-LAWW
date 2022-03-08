@@ -25,22 +25,12 @@ class Method_GCN(method, nn.Module):
 
         if DATASET == 0:
             # CORA config
-            self.max_epoch = 20  # 85%
+            self.max_epoch = 400  # 70%
             self.learning_rate = 1e-3
-
-            self.n_layers = 2
-            self.dropout = 0.2
-            self.out_size = 2
-
-            self.input_dim = 50
-            self.hidden_dim = 50
-            self.input_dim1 = 50
-            self.hidden_dim1 = 50
 
             self.conv1 = None
             self.conv2 = None
-            self.relu = nn.ReLU().to(self.device)
-            self.fc = nn.Linear(self.hidden_dim1, self.out_size).to(self.device)
+            self.fc = None
         elif DATASET == 1:
             # CITESEER config
             pass
@@ -49,7 +39,7 @@ class Method_GCN(method, nn.Module):
             pass
         elif DATASET == 3:
             # DEBUG config (mini-CORA)
-            self.max_epoch = 20  # 85%
+            self.max_epoch = 500
             self.learning_rate = 1e-3
 
             self.conv1 = None
@@ -63,6 +53,7 @@ class Method_GCN(method, nn.Module):
         x = F.dropout(x, training=self.training)
         x = self.conv2(x, edge_index)
 
+        # return self.fc(F.relu(x))
         return F.log_softmax(x, dim=1)
 
     def do_train_cora(self, traindata):
@@ -89,8 +80,8 @@ class Method_GCN(method, nn.Module):
         print('Finished Training')
 
     def train_data(self, traindata):
-        if self.DATASET == 0:
-            pass
+        if self.DATASET == 0:  # CORA
+            self.do_train_cora(traindata)
         elif self.DATASET == 1:
             pass
         elif self.DATASET == 2:
@@ -99,8 +90,9 @@ class Method_GCN(method, nn.Module):
             self.do_train_cora(traindata)
     
     def test(self, testdata):
-        if self.DATASET == 0:
-            pass
+        if self.DATASET == 0:  # CORA
+            pred_y = self(testdata)
+            return pred_y[self.data['train_test_val']['idx_test']].max(1)[1]
         elif self.DATASET == 1:
             pass
         elif self.DATASET == 2:
@@ -123,9 +115,18 @@ class Method_GCN(method, nn.Module):
             y=self.data['graph']['y'][self.data['train_test_val']['idx_train']],
             pos=self.data['train_test_val']['idx_train']
         )
+        testdata = Data(
+            x=self.data['graph']['X'],
+            edge_index=edge_idx,
+            # edge_attr=self.data['graph']['X'],
+            y=self.data['graph']['y'][self.data['train_test_val']['idx_test']],
+            pos=self.data['train_test_val']['idx_train']
+        )
 
-        if self.DATASET == 0:
-            pass
+        if self.DATASET == 0:  # CORA
+            self.conv1 = GCNConv(1433, 16)
+            self.conv2 = GCNConv(16, 7)  # cora has 7 different classes
+            self.fc = nn.Linear(7, 7)
         elif self.DATASET == 1:
             pass
         elif self.DATASET == 2:
@@ -137,6 +138,6 @@ class Method_GCN(method, nn.Module):
 
         self.train_data(traindata)
         print('--start testing...')
-        if self.DATASET == 0:
-            pred_y, y_true = self.test(self.data['test'])
-            return {'pred_y': pred_y, 'true_y': y_true}
+        pred_y = self.test(testdata)
+        y_true = self.data['graph']['y'][self.data['train_test_val']['idx_test']]
+        return {'pred_y': pred_y, 'true_y': y_true}

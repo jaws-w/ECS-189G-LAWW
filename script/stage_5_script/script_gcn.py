@@ -12,11 +12,11 @@ from stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
 
 if 1:
     # cora: 0, citeseer: 1, pubmed: 2, cora-small: 3
-    DATASET = 3
+    DATASET = 0
 
     DATA_FOLDER = '../../data/stage_5_data/'
 
-    if DATASET == 3:
+    if DATASET == 0:
         data_obj = Dataset_Loader(dName='cora')
         data_obj.dataset_source_folder_path = DATA_FOLDER + 'cora'
     elif DATASET == 1:

@@ -69,8 +69,8 @@ class Dataset_Loader(dataset):
         # the following train, test, val index are just examples, sample the train, test according to project requirements
         if self.dataset_name == 'cora':
             idx_train = range(140)
-            idx_test = range(200, 1200)
-            idx_val = range(1200, 1500)
+            idx_test = range(200, 1250)
+            idx_val = range(1250, 1500)
         elif self.dataset_name == 'citeseer':
             idx_train = range(120)
             idx_test = range(200, 1200)
