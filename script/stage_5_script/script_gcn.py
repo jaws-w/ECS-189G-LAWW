@@ -12,7 +12,7 @@ from stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
 
 if 1:
     # cora: 0, citeseer: 1, pubmed: 2, cora-small: 3
-    DATASET = 0
+    DATASET = 1
 
     DATA_FOLDER = '../../data/stage_5_data/'
 

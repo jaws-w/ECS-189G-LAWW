@@ -25,25 +25,70 @@ class Method_GCN(method, nn.Module):
 
         if DATASET == 0:
             # CORA config
-            self.max_epoch = 400  # 70%
+            # self.max_epoch = 50  # 67-70%
+            # self.learning_rate = 1e-2
+            #
+            # self.conv1 = GCNConv(1433, 16)
+            # self.conv2 = GCNConv(16, 7)  # cora has 7 different classes
+            # self.fc = nn.Linear(7, 7)
+
+            # self.max_epoch = 25  # 73-75%
+            # self.learning_rate = 1e-3
+            #
+            # self.conv1 = GCNConv(1433, 512)
+            # self.conv2 = GCNConv(512, 256)  # cora has 7 different classes
+            # self.fc = nn.Linear(256, 7)
+
+            self.max_epoch = 25  # >>76%<<
             self.learning_rate = 1e-3
 
-            self.conv1 = None
-            self.conv2 = None
-            self.fc = None
+            self.conv1 = GCNConv(1433, 1024)
+            self.conv2 = GCNConv(1024, 512)  # cora has 7 different classes
+            self.fc = nn.Linear(512, 7)
         elif DATASET == 1:
             # CITESEER config
-            pass
+            # self.max_epoch = 50  # 57-61%
+            # self.learning_rate = 5e-3
+            #
+            # self.conv1 = GCNConv(3703, 16)
+            # self.conv2 = GCNConv(16, 6)  # citeseer has 6 different classes
+            # self.fc = nn.Linear(6, 6)
+
+            # self.max_epoch = 20  # 64% at 50 epochs 5e-3, 65-66% at 20 epochs 1e-3, 65% at 30epochs, 1e-3
+            # self.learning_rate = 1e-3
+            #
+            # self.conv1 = GCNConv(3703, 1024)
+            # self.conv2 = GCNConv(1024, 512)  # citeseer has 6 different classes
+            # self.fc = nn.Linear(512, 6)
+
+            self.max_epoch = 40  # 63% at 20 epochs, 65% at 25 epochs, >>66% at 30 epochs<<, 64% at 40 epochs
+            self.learning_rate = 1e-3
+
+            self.conv1 = GCNConv(3703, 512)
+            self.conv2 = GCNConv(512, 64)  # citeseer has 6 different classes
+            self.fc = nn.Linear(64, 6)
         elif DATASET == 2:
             # PUBMED config
-            pass
+            # self.max_epoch = 250  # 67% at 400 epoch, 66% at 250
+            # self.learning_rate = 1e-3
+            #
+            # self.conv1 = GCNConv(500, 16)
+            # self.conv2 = GCNConv(16, 3)  # citeseer has 6 different classes
+            # self.fc = nn.Linear(3, 3)
+
+            self.max_epoch = 150  # 66% at 100 epoch, 68-71% at 125 epoch, >>70-72% at 150 epoch<<
+            self.learning_rate = 1e-3
+
+            self.conv1 = GCNConv(500, 128)
+            self.conv2 = GCNConv(128, 32)  # citeseer has 6 different classes
+            self.fc = nn.Linear(32, 3)
         elif DATASET == 3:
             # DEBUG config (mini-CORA)
             self.max_epoch = 500
             self.learning_rate = 1e-3
 
-            self.conv1 = None
-            self.conv2 = None
+            self.conv1 = GCNConv(1433, 16)
+            self.conv2 = GCNConv(16, 7)
 
     def forward(self, traindata):
         x, edge_index = traindata.x, traindata.edge_index
@@ -80,32 +125,16 @@ class Method_GCN(method, nn.Module):
         print('Finished Training')
 
     def train_data(self, traindata):
-        if self.DATASET == 0:  # CORA
-            self.do_train_cora(traindata)
-        elif self.DATASET == 1:
-            pass
-        elif self.DATASET == 2:
-            pass
-        elif self.DATASET == 3:
-            self.do_train_cora(traindata)
+        self.do_train_cora(traindata)
     
     def test(self, testdata):
-        if self.DATASET == 0:  # CORA
-            pred_y = self(testdata)
-            return pred_y[self.data['train_test_val']['idx_test']].max(1)[1]
-        elif self.DATASET == 1:
-            pass
-        elif self.DATASET == 2:
-            pass
-        elif self.DATASET == 3:
-            pass
+        pred_y = self(testdata)
+        return pred_y[self.data['train_test_val']['idx_test']].max(1)[1]
 
     def run(self):
         print('method running...')
         print('--start training...')
         # self.embedding = nn.Embedding(self.vocab_input_size, self.input_dim).to(self.device)
-        # if self.DATASET == 1:
-        #     self.fc = nn.Linear(self.hidden_dim1, self.vocab_input_size).to(self.device)
 
         edge_idx = torch.LongTensor(self.data['graph']['edge']).t().contiguous()
         traindata = Data(
@@ -122,19 +151,6 @@ class Method_GCN(method, nn.Module):
             y=self.data['graph']['y'][self.data['train_test_val']['idx_test']],
             pos=self.data['train_test_val']['idx_train']
         )
-
-        if self.DATASET == 0:  # CORA
-            self.conv1 = GCNConv(1433, 16)
-            self.conv2 = GCNConv(16, 7)  # cora has 7 different classes
-            self.fc = nn.Linear(7, 7)
-        elif self.DATASET == 1:
-            pass
-        elif self.DATASET == 2:
-            pass
-        elif self.DATASET == 3:
-            # Debug cora
-            self.conv1 = GCNConv(1433, 16)
-            self.conv2 = GCNConv(16, 7)  # cora has 7 different classes
 
         self.train_data(traindata)
         print('--start testing...')
