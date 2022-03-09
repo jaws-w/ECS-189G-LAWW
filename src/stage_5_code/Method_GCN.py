@@ -1,7 +1,7 @@
-from base_class.method import method
-from stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
-# from src.base_class.method import method
-# from src.stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
+# from base_class.method import method
+# from stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
+from src.base_class.method import method
+from src.stage_5_code.Evaluate_Accuracy import Evaluate_Accuracy
 from torch_geometric.data import Data
 from torch_geometric.nn import GCNConv
 
@@ -10,6 +10,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
+
+import warnings
 
 
 # We used the readings and tutorial at: https://blog.floydhub.com/gru-with-pytorch/ to learn more about GRU implementation.
@@ -20,6 +22,9 @@ class Method_GCN(method, nn.Module):
         nn.Module.__init__(self)
         self.DATASET = DATASET
         self.out_size = None
+
+        warnings.filterwarnings("ignore")
+
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -39,12 +44,26 @@ class Method_GCN(method, nn.Module):
             # self.conv2 = GCNConv(512, 256)  # cora has 7 different classes
             # self.fc = nn.Linear(256, 7)
 
-            self.max_epoch = 25  # >>76%<<
+            # self.max_epoch = 25  # >>76%<<
+            # self.learning_rate = 1e-3
+
+            # self.conv1 = GCNConv(1433, 1024)
+            # self.conv2 = GCNConv(1024, 512)  # cora has 7 different classes
+            # self.fc = nn.Linear(512, 7)
+
+            # self.max_epoch = 50  # >>77%<<
+            # self.learning_rate = 1e-3
+
+            # self.conv1 = GCNConv(1433, 1024)
+            # self.conv2 = GCNConv(1024, 512)  # cora has 7 different classes
+            # self.fc = nn.Linear(512, 7)
+
+            self.max_epoch = 50  # >>77%<<
             self.learning_rate = 1e-3
 
-            self.conv1 = GCNConv(1433, 1024)
-            self.conv2 = GCNConv(1024, 512)  # cora has 7 different classes
-            self.fc = nn.Linear(512, 7)
+            self.conv1 = GCNConv(1433, 1024).to(self.device)
+            self.conv2 = GCNConv(1024, 512).to(self.device)  # cora has 7 different classes
+            self.fc = nn.Linear(512, 7).to(self.device)
         elif DATASET == 1:
             # CITESEER config
             # self.max_epoch = 50  # 57-61%
@@ -64,9 +83,9 @@ class Method_GCN(method, nn.Module):
             self.max_epoch = 40  # 63% at 20 epochs, 65% at 25 epochs, >>66% at 30 epochs<<, 64% at 40 epochs
             self.learning_rate = 1e-3
 
-            self.conv1 = GCNConv(3703, 512)
-            self.conv2 = GCNConv(512, 64)  # citeseer has 6 different classes
-            self.fc = nn.Linear(64, 6)
+            self.conv1 = GCNConv(3703, 512).to(self.device)
+            self.conv2 = GCNConv(512, 64).to(self.device)  # citeseer has 6 different classes
+            self.fc = nn.Linear(64, 6).to(self.device)
         elif DATASET == 2:
             # PUBMED config
             # self.max_epoch = 250  # 67% at 400 epoch, 66% at 250
@@ -79,23 +98,23 @@ class Method_GCN(method, nn.Module):
             self.max_epoch = 150  # 66% at 100 epoch, 68-71% at 125 epoch, >>70-72% at 150 epoch<<
             self.learning_rate = 1e-3
 
-            self.conv1 = GCNConv(500, 128)
-            self.conv2 = GCNConv(128, 32)  # citeseer has 6 different classes
-            self.fc = nn.Linear(32, 3)
+            self.conv1 = GCNConv(500, 128).to(self.device)
+            self.conv2 = GCNConv(128, 32).to(self.device)  # citeseer has 6 different classes
+            self.fc = nn.Linear(32, 3).to(self.device)
         elif DATASET == 3:
             # DEBUG config (mini-CORA)
             self.max_epoch = 500
             self.learning_rate = 1e-3
 
-            self.conv1 = GCNConv(1433, 16)
-            self.conv2 = GCNConv(16, 7)
+            self.conv1 = GCNConv(1433, 16).to(self.device)
+            self.conv2 = GCNConv(16, 7).to(self.device)
 
     def forward(self, traindata):
         x, edge_index = traindata.x, traindata.edge_index
 
         x = self.conv1(x, edge_index)
-        x = F.relu(x)
-        x = F.dropout(x, training=self.training)
+        x = F.relu(x).to(self.device)
+        x = F.dropout(x, training=self.training).to(self.device)
         x = self.conv2(x, edge_index)
 
         # return self.fc(F.relu(x))
@@ -134,22 +153,19 @@ class Method_GCN(method, nn.Module):
     def run(self):
         print('method running...')
         print('--start training...')
-        # self.embedding = nn.Embedding(self.vocab_input_size, self.input_dim).to(self.device)
 
         edge_idx = torch.LongTensor(self.data['graph']['edge']).t().contiguous()
         traindata = Data(
-            x=self.data['graph']['X'],
-            edge_index=edge_idx,
-            # edge_attr=self.data['graph']['X'],
-            y=self.data['graph']['y'][self.data['train_test_val']['idx_train']],
-            pos=self.data['train_test_val']['idx_train']
+            x=self.data['graph']['X'].to(self.device),
+            edge_index=edge_idx.to(self.device),
+            y=self.data['graph']['y'][self.data['train_test_val']['idx_train']].to(self.device),
+            pos=self.data['train_test_val']['idx_train'].to(self.device)
         )
         testdata = Data(
-            x=self.data['graph']['X'],
-            edge_index=edge_idx,
-            # edge_attr=self.data['graph']['X'],
-            y=self.data['graph']['y'][self.data['train_test_val']['idx_test']],
-            pos=self.data['train_test_val']['idx_train']
+            x=self.data['graph']['X'].to(self.device),
+            edge_index=edge_idx.to(self.device),
+            y=self.data['graph']['y'][self.data['train_test_val']['idx_test']].to(self.device),
+            pos=self.data['train_test_val']['idx_train'].to(self.device)
         )
 
         self.train_data(traindata)

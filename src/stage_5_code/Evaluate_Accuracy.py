@@ -5,16 +5,20 @@ Concrete Evaluate class for a specific evaluation metrics
 # Copyright (c) 2017-Current Jiawei Zhang <jiawei@ifmlab.org>
 # License: TBD
 
-from base_class.evaluate import evaluate
-# from src.base_class.evaluate import evaluate
+# from base_class.evaluate import evaluate
+from src.base_class.evaluate import evaluate
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import numpy as np
+import warnings
+
 
 
 class Evaluate_Accuracy(evaluate):
     data = None
     
     def evaluate(self):
+        warnings.filterwarnings("ignore")
+
         print('evaluating performance...')
         score_list = []
         precision_list = []
